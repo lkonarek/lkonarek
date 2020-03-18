@@ -4,12 +4,12 @@ title: About
 permalink: /about/
 ---
 
-Some information about you!
+Hi everyone, I am a fourth generational mage with spectral powers that allow me to connect to all eleven planes of existence. Feel free to reach out by email, vmail, zandorian mail and/or space-mail.
 
 ### More Information
 
-A place to include any other types of information that you'd like to include about yourself.
+My hobbies include saving the universe from intergalatic terrorists (three times!) and playing the fizilian piano. If your 12 feet tall and palorkian I am single.
 
 ### Contact me
 
-[email@domain.com](mailto:email@domain.com)
+[email@domain.com](mailto:zandariandestroyer@battlequest.plor)
