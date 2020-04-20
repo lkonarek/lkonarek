@@ -8,7 +8,7 @@ Through my experience in the banking industry, I was exposed to many different s
 
 ### Skills
 
-Python, R, SQL, Bash, GitHub, Tableau, Financial Modelling & Excel
+Python, R, SQL, Bash, AWS, GitHub, Tableau, Financial Modelling & Excel
 
 ### Contact me
 
