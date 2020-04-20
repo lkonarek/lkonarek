@@ -4,12 +4,12 @@ title: About
 permalink: /about/
 ---
 
-Hi everyone, I am a fourth generational mage with spectral powers that allow me to connect to all eleven planes of existence. Feel free to reach out by email, vmail, zandorian mail and/or space-mail.
+Through my experience in the banking industry, I was exposed to many different sectors and businesses. Although I enjoyed the exposure and experience, I ultimately  felt constrained by the restrictions of the field. I wished to dig deeper into the underlying trends and patterns to get more insight, which lead me to Data Science. I am fascinated by the intersection of Finance and Data Science, but also have a life-long love of  NBA statistics, and a passion for sustainability and alternative energy. 
 
-### More Information
+### Skills
 
-My hobbies include saving the universe from intergalatic terrorists (three times!) and playing the fizilian piano. If your 12 feet tall and palorkian I am single.
+Python, R, SQL, Bash, GitHub, Tableau, Financial Modelling & Excel
 
 ### Contact me
 
-[email@domain.com](mailto:zandariandestroyer@battlequest.plor)
+[logan konarek](mailto:logankonarek@gmail.com)
