@@ -1,239 +1,34 @@
 ---
 layout: post
-title: NBA Project Part 1
+title: NBA & Data Science
 ---
 
-## Part 2a: EDA and Post-Scraping Clean-up
+Introduction: 
 
+As someone who is practically a life-long NBA fan, I have spent hours (perhaps even days) of my life staring at the stats of my favorite players. Obsessively memorizing stats so I could beat my friends in arguments about which player was better was my primary goal I must admit, but what started at what stats are the single best to follow, became so I could understand what all the stats meant. 
 
-```python
-# Import necessary packages:
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-```
+Basketball may be the single sport with the most stats (other then perhaps baseball), and anyone who has ever gone to a specific players profile knows that they keep track of an amazing amount of things, everything from scored points to tipped passes. And it is understandable why this is the case, NBA teams pay tens of millions of dollars to sign players on multi-year contracts. It is vital to understand not only on which metrics to evaluate players, but also how much to pay. The tendency is to evaluate players against their peers who play the same position, so it is certainly possible that certain player types or positions are overpaid relative to others.
+Due to the clear business case for the NBA, I sought to answer two main questions:
+- What are the best ways of evaluating a basketball player’s on court value?
+- Could this on court value be used to determine if a player is over or under paid?
+Currently NBA teams have comprehensive analytics departments, but most of their analytics work is focused on the teams’ style of play as a supplemental to coaching, for example: taking more 3 pointers, driving to the net more in an attempt to draw fouls, and kick out passes to players in the corners to stretch the defense. However, NBA teams could do more to apply analytics to value for money.
 
+Data Acquisition:
 
-```python
-# in order to look at every column of the dataframes we load in:
-pd.set_option('display.max_columns', 100)
-```
+Given that basketball stats are readily available online, I manually scraped all the stats from basketball-reference.com (using beautifulsoup w/ Python). My reasoning for doing this rather then downloading a dataset from Kaggle or another online depository was due to the fact that I wanted all the clean-up and dataframe schemas to be the same for each individual season I processed. 
 
+In a perfect world, it would be ideal to train models on the data for each individual season and evaluate against each other, but given that there are only about 300-400 players who play significant minutes per season (at least 8 minutes per game and 20 games played), there are too few rows for an effective model to be trained on. Therefore, multiple years were combined together into ‘eras’ for modelling: 2014-2020 (present era), 2007-2013, and 2000-2006.
 
-```python
-# Read the csv's in that were scraped in Part 1a:
-df20 = pd.read_csv('data/2019-2020.csv')
-df19 = pd.read_csv('data/2018-2019.csv')
-df18 = pd.read_csv('data/2017-2018.csv')
-df17 = pd.read_csv('data/2016-2017.csv')
-df16 = pd.read_csv('data/2015-2016.csv')
-df15 = pd.read_csv('data/2014-2015.csv')
-df14 = pd.read_csv('data/2013-2014.csv')
-df13 = pd.read_csv('data/2012-2013.csv')
-df12 = pd.read_csv('data/2011-2012.csv')
-df11 = pd.read_csv('data/2010-2011.csv')
-df10 = pd.read_csv('data/2009-2010.csv')
-df09 = pd.read_csv('data/2008-2009.csv')
-df08 = pd.read_csv('data/2007-2008.csv')
-df07 = pd.read_csv('data/2006-2007.csv')
-df06 = pd.read_csv('data/2005-2006.csv')
-df05 = pd.read_csv('data/2004-2005.csv')
-df04 = pd.read_csv('data/2003-2004.csv')
-df03 = pd.read_csv('data/2002-2003.csv')
-df02 = pd.read_csv('data/2001-2002.csv')
-df01 = pd.read_csv('data/2000-2001.csv')
-df00 = pd.read_csv('data/1999-2000.csv')
-# Get rid of the 'Unnamed: 0', column that was a result of combining our scraped tables together in Part 1a:
-df20 = df20.drop(['Unnamed: 0'], axis=1)
-df19 = df19.drop(['Unnamed: 0'], axis=1)
-df18 = df18.drop(['Unnamed: 0'], axis=1)
-df17 = df17.drop(['Unnamed: 0'], axis=1)
-df16 = df16.drop(['Unnamed: 0'], axis=1)
-df15 = df15.drop(['Unnamed: 0'], axis=1)
-df14 = df14.drop(['Unnamed: 0'], axis=1)
-df13 = df13.drop(['Unnamed: 0'], axis=1)
-df12 = df12.drop(['Unnamed: 0'], axis=1)
-df11 = df11.drop(['Unnamed: 0'], axis=1)
-df10 = df10.drop(['Unnamed: 0'], axis=1)
-df09 = df09.drop(['Unnamed: 0'], axis=1)
-df08 = df08.drop(['Unnamed: 0'], axis=1)
-df07 = df07.drop(['Unnamed: 0'], axis=1)
-df06 = df06.drop(['Unnamed: 0'], axis=1)
-df05 = df05.drop(['Unnamed: 0'], axis=1)
-df04 = df04.drop(['Unnamed: 0'], axis=1)
-df03 = df03.drop(['Unnamed: 0'], axis=1)
-df02 = df02.drop(['Unnamed: 0'], axis=1)
-df01 = df01.drop(['Unnamed: 0'], axis=1)
-df00 = df00.drop(['Unnamed: 0'], axis=1)
-```
+EDA & Summary of Cleaning:
+While initially exploring the data, the preliminary goal was to isolate what distinguishes a good player from an elite player. All-star status was determined as the best way to do this. Once the most vital stats were isolated, on-court value vs contracts could be compared.
+The dataset required little traditional cleaning. Each row in the dataset corresponded to a player, therefore null values were not a significant issue, as the only nulls were for players who didn’t record any of a percent-based stat (3p%, FT%, etc.). Null values represented less then 15% in any column, and most columns had 0% null values.
+However, a number of non-conventional preprocessing decisions were made. First as already alluded to, players that do not play significant minutes and enough games were excluded in order to not skew the data and perhaps make the model more prone to overfitting. Also, by adding this threshold the vast majority of the nulls of the dataset were removed.
+Second, another problem were players that were traded within a given season, as these players would have multiple rows (their stat totals for the year, their stats for the first team they were on, and their stats for the second team they were on). To avoid this triple counting, the best solution was to keep only the ‘total’ row for each player and drop the team column altogether.
+Additional Feature Engineering and EDA work was primarily driven by domain expertise. Certain statistics were dropped as features from the models in order to mitigate issues with collinearity or because certain features were anecdotally unimportant for predicting the y-variable (all-star status). For example, the age column was dropped given that the average age of the NBA is very young, and rookies and sophomores typically don’t make the all-star game even if their stats warrant it. 
 
+Now that I have explained the primary EDA considerations and preprocessing that was required to get the datasets ready for modelling, I first had to determine how best to deal with the first goal of the project: to identify what causes a player to successfully make the all-star team. However to accurately build a model to predict this, we would need to have a similar number of data points. 
 
 ```python
-# the df20 dataframe has some unique attributes given that there are contract values included (used for the 
-# unsupervised learning portion):
-df20.drop(['2019-20', 'Guaranteed'], axis=1, inplace=True)
-# Convert our All-star dtype to int just to make sure that all 1's are stored as integers and not having some of them
-# saved as strings:
-df20['All-star'] = df20['All-star'].astype(int)
-```
-
-One of the cleaning decisions that still needs to be made is regarding what to do with traded players. Currently, in each of the dataframes that are saved (from df00 to df20) if a player is traded in a given season, three rows exist for this player (the row for the total, the row for the first team, and the row for the second team). 
-
-There are two options to deal with these rows:  
-- (1) we can get rid of the total rows for each player and keep the rows for each seperate team, or 
-- (2) we can keep only the total row values for players that were traded, and then drop the team column altogther.
-
-Ultimately, option (2) seems like the better choice, given that keeping multiple rows for the same player in a given season will essentially double count them. Also in the rare yet possible cases that a player is traded in a given season and makes the all-star game, we are not double counting them as an all-star with option (2). 
-
-
-```python
-# Let's get rid of all the duplicate rows that have the same player name, in order to not double or triple count 
-# players that were traded during the season. First, lets do it for only 2019 so we confirm that the correct rows are dropped
-# using this method: 
-df19_dropped = df19.drop_duplicates(subset='Player', keep='first')
-```
-
-
-```python
-# As we can see we can confirm the previous step was done correctly cause there are 86 players who are on the team 
-# "Total" which of course is not a real team, these are all the players that were traded mid season and since we are 
-# dropping all the duplicates where we see multiple names, and we are keeping the first row above, then we see that 
-# the total column was kept and the other two columns would have been dropped. Assuming no players were traded 
-# three times in the season we can assume that there were 86*2 = 172 rows dropped.
-df19['Tm'].value_counts()
-```
-
-
-
-
-    TOT    86
-    MEM    28
-    CLE    27
-    PHI    26
-    WAS    25
-    MIL    24
-    PHO    24
-    NYK    23
-    HOU    23
-    LAC    22
-    ATL    22
-    LAL    22
-    TOR    22
-    CHI    22
-    MIN    21
-    DAL    21
-    SAC    20
-    NOP    20
-    DET    20
-    BRK    19
-    OKC    18
-    POR    18
-    DEN    18
-    UTA    18
-    MIA    18
-    IND    17
-    GSW    17
-    ORL    17
-    CHO    17
-    BOS    17
-    SAS    16
-    Name: Tm, dtype: int64
-
-
-
-
-```python
-print(df19.shape)
-print(df19_dropped.shape)
-print(708-172)
-```
-
-    (708, 53)
-    (530, 53)
-    536
-
-
-As we can see from the above, there are still 6 rows of a discrepency, however it is possible that this is do to players who get traded more then once in the season:
-
-
-```python
-# Since players that are traded once would have a total row, the first team row and then the second row, we are 
-# setting the player_counts we want to look at to be greater then 3, therefore players that played on 3 seperate teams
-# throughout the season (since they would have 4 rows: total, team 1, team 2, and team 3)
-player_counts = df19['Player'].value_counts()
-player_list = player_counts[player_counts > 3].index.tolist()
-df19_trades = df19[df19['Player'].isin(player_list)]
-
-df19_trades['Player'].value_counts()
-```
-
-
-
-
-    Andrew Harrison    4
-    Isaiah Canaan      4
-    Wesley Matthews    4
-    Greg Monroe        4
-    Jason Smith        4
-    Alec Burks         4
-    Name: Player, dtype: int64
-
-
-
-As we can see there are 6 players who unfortunately had to play on three seperate teams throughout the season, poor guys.... however this makes exact sense and shows that our method for getting rid of duplicates worked perfectly. We can now use the same method for each season 
-
-
-```python
-df20 = df20.drop_duplicates(subset='Player', keep='first')
-# do it for 2019 for real now:
-df19 = df19.drop_duplicates(subset='Player', keep='first')
-# and the others in the set:
-df18 = df18.drop_duplicates(subset='Player', keep='first')
-df17 = df17.drop_duplicates(subset='Player', keep='first')
-df16 = df16.drop_duplicates(subset='Player', keep='first')
-df15 = df15.drop_duplicates(subset='Player', keep='first')
-df14 = df14.drop_duplicates(subset='Player', keep='first')
-df13 = df13.drop_duplicates(subset='Player', keep='first')
-df12 = df12.drop_duplicates(subset='Player', keep='first')
-df11 = df11.drop_duplicates(subset='Player', keep='first')
-df10 = df10.drop_duplicates(subset='Player', keep='first')
-df09 = df09.drop_duplicates(subset='Player', keep='first')
-df08 = df08.drop_duplicates(subset='Player', keep='first')
-df07 = df07.drop_duplicates(subset='Player', keep='first')
-df06 = df06.drop_duplicates(subset='Player', keep='first')
-df05 = df05.drop_duplicates(subset='Player', keep='first')
-df04 = df04.drop_duplicates(subset='Player', keep='first')
-df03 = df03.drop_duplicates(subset='Player', keep='first')
-df02 = df02.drop_duplicates(subset='Player', keep='first')
-df01 = df01.drop_duplicates(subset='Player', keep='first')
-df00 = df00.drop_duplicates(subset='Player', keep='first')
-```
-
-
-```python
-# Let's combine the years into eras before doing anymore cleaning as it will involve less steps to just break them up
-# into three:
-df14_20 = pd.concat([df14, df15, df16, df17, df18, df19, df20], axis=0, sort=False)
-df07_13 = pd.concat([df07, df08, df09, df10, df11, df12, df13], axis=0, sort=False) 
-df00_06 = pd.concat([df00, df01, df02, df03, df04, df05, df06], axis=0, sort=False) 
-# Need to reset the indexes 
-df14_20.reset_index(drop=True, inplace=True)
-df07_13.reset_index(drop=True, inplace=True)
-df00_06.reset_index(drop=True, inplace=True)
-```
-
-
-```python
-df14_20['All-star'] = df14_20['All-star'].astype(int)
-df07_13['All-star'] = df07_13['All-star'].astype(int)
-df00_06['All-star'] = df00_06['All-star'].astype(int)
-```
-
-
-```python
-# As we can see the classification problem is very biased ( a lot more 0's then 1's), which makes sense given the 
-# number of players that make the all-star team vs the number of players who do not.
-
 print(df14_20['All-star'].value_counts())
 print(df07_13['All-star'].value_counts())
 print(df00_06['All-star'].value_counts())
@@ -249,375 +44,22 @@ print(df00_06['All-star'].value_counts())
     1     176
     Name: All-star, dtype: int64
 
+As we can see the classification problem is very biased (0 means non all-star and 1 means all-star), which makes sense given the number of players that make the all-star team vs the number of players who do not.
 
-
+Now it is important that we define the threshold for a player essentially making into the dataset. Given that some players get called up from the NBA development league (the G-league) throughout the season as team need requires. Therefore roughly a quarter of the season (20 games of the total 82 games) and 8 minutes per game (1/6th of a total individual game). As you can also see, the same threshold was chosen for each season: 
 ```python
-# Now it is important that we define the threshold for a player essentially making into the dataset. Given that 
-# some players get called up from the NBA development league (the G-league) throughout the season as team need requires,
-# More then a quarter of the season played (82 games in a season): 
+
 df14_20 = df14_20[df14_20['G']>20]
-# and more then 8 mpg: 
 df14_20 = df14_20[df14_20['MP']>8.0]
 
-# For 2007-2013 as well: 
 df07_13 = df07_13[df07_13['G']>20]
 df07_13 = df07_13[df07_13['MP']>8.0]
 
-# For 2000-2006 as well: 
 df00_06 = df00_06[df00_06['G']>20]
 df00_06 = df00_06[df00_06['MP']>8.0]
 ```
 
-
-```python
-# Interestingly the reason that the number of all-stars goes down by 1 for both 2014-2020 and 2007-2013 is because
-# kobe bryant made the all star game in ____ despite playing less then 20 games in the season. Yao ming did the same
-# in the 2010 season. 
-
-print(df14_20['All-star'].value_counts())
-print(df07_13['All-star'].value_counts())
-print(df00_06['All-star'].value_counts())
-```
-
-    0    2554
-    1     183
-    Name: All-star, dtype: int64
-    0    2427
-    1     183
-    Name: All-star, dtype: int64
-    0    2318
-    1     174
-    Name: All-star, dtype: int64
-
-
-
-```python
-percent_missing14_20 = df14_20.isnull().sum() * 100 / len(df14_20)
-null_df = pd.DataFrame({'column_name': df14_20.columns,
-                                 'percent_missing': percent_missing14_20})
-null_df[null_df['percent_missing'].gt(0)]
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>column_name</th>
-      <th>percent_missing</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>3P%</td>
-      <td>3P%</td>
-      <td>5.809280</td>
-    </tr>
-    <tr>
-      <td>FT%</td>
-      <td>FT%</td>
-      <td>0.036536</td>
-    </tr>
-    <tr>
-      <td>Drop 1</td>
-      <td>Drop 1</td>
-      <td>100.000000</td>
-    </tr>
-    <tr>
-      <td>Drop 2</td>
-      <td>Drop 2</td>
-      <td>100.000000</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-
-```python
-percent_missing = df07_13.isnull().sum() * 100 / len(df07_13)
-null_df = pd.DataFrame({'column_name': df07_13.columns,
-                                 'percent_missing': percent_missing})
-null_df[null_df['percent_missing'].gt(0)]
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>column_name</th>
-      <th>percent_missing</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>3P%</td>
-      <td>3P%</td>
-      <td>10.651341</td>
-    </tr>
-    <tr>
-      <td>FT%</td>
-      <td>FT%</td>
-      <td>0.076628</td>
-    </tr>
-    <tr>
-      <td>Drop 1</td>
-      <td>Drop 1</td>
-      <td>100.000000</td>
-    </tr>
-    <tr>
-      <td>Drop 2</td>
-      <td>Drop 2</td>
-      <td>100.000000</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-
-```python
-percent_missing = df00_06.isnull().sum() * 100 / len(df00_06)
-null_df = pd.DataFrame({'column_name': df00_06.columns,
-                                 'percent_missing': percent_missing})
-null_df[null_df['percent_missing'].gt(0)]
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>column_name</th>
-      <th>percent_missing</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>3P%</td>
-      <td>3P%</td>
-      <td>12.399679</td>
-    </tr>
-    <tr>
-      <td>Drop 1</td>
-      <td>Drop 1</td>
-      <td>100.000000</td>
-    </tr>
-    <tr>
-      <td>Drop 2</td>
-      <td>Drop 2</td>
-      <td>100.000000</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-
-```python
-df14_20.drop(['Player', 'Tm', 'Drop 1', 'Drop 2', 'Year'], axis=1, inplace=True)
-df07_13.drop(['Player', 'Tm', 'Drop 1', 'Drop 2', 'Year'], axis=1, inplace=True)
-df00_06.drop(['Player', 'Tm', 'Drop 1', 'Drop 2', 'Year'], axis=1, inplace=True)
-```
-
-
-```python
-# Now we can look at the real null figures remaining: 
-percent_missing = df14_20.isnull().sum() * 100 / len(df14_20)
-null_df = pd.DataFrame({'column_name': df14_20.columns,
-                                 'percent_missing': percent_missing})
-null_df[null_df['percent_missing'].gt(0)]
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>column_name</th>
-      <th>percent_missing</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>3P%</td>
-      <td>3P%</td>
-      <td>5.809280</td>
-    </tr>
-    <tr>
-      <td>FT%</td>
-      <td>FT%</td>
-      <td>0.036536</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-
-```python
-percent_missing = df07_13.isnull().sum() * 100 / len(df07_13)
-null_df = pd.DataFrame({'column_name': df07_13.columns,
-                                 'percent_missing': percent_missing})
-null_df[null_df['percent_missing'].gt(0)]
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>column_name</th>
-      <th>percent_missing</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>3P%</td>
-      <td>3P%</td>
-      <td>10.651341</td>
-    </tr>
-    <tr>
-      <td>FT%</td>
-      <td>FT%</td>
-      <td>0.076628</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-
-```python
-percent_missing = df00_06.isnull().sum() * 100 / len(df00_06)
-null_df = pd.DataFrame({'column_name': df00_06.columns,
-                                 'percent_missing': percent_missing})
-null_df[null_df['percent_missing'].gt(0)]
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>column_name</th>
-      <th>percent_missing</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>3P%</td>
-      <td>3P%</td>
-      <td>12.399679</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
+At this point, now that we have actually created the above thresholds, the only columns that have any null values is 3% and it is only for the players who have recorded no 3 pointers (fairly common for players who are centres and don't shoot long range shots at all):
 
 ```python
 # Given that 3p% being null is due to centers in the nba who don't shoot them at all, and therefore record a null 3p% 
@@ -625,14 +67,9 @@ null_df[null_df['percent_missing'].gt(0)]
 df14_20['3P%'] = df14_20['3P%'].fillna(0)
 df07_13['3P%'] = df07_13['3P%'].fillna(0)
 df00_06['3P%'] = df00_06['3P%'].fillna(0)
-
-# Given that Ft% makes up such a small percentage of nulls in the set, we will fill them in with the mean of the nba
-# for these rows. 
-df14_20['FT%'] = df14_20['FT%'].fillna(df14_20['FT%'].mean())
-df07_13['FT%'] = df07_13['FT%'].fillna(df14_20['FT%'].mean())
 ```
 
-
+The Last cleaning decision that needs to be made is regarding positions, at this point the data is saved as such 
 ```python
 # Another decision that needs to be made is in regards to positions, currently the data is saved as such: 
 df14_20['Pos'].value_counts()
@@ -657,8 +94,6 @@ df14_20['Pos'].value_counts()
     SG-PF      1
     Name: Pos, dtype: int64
 
-
-
 Ultimately the best way to deal with this seems to be to remove the secondary position altogether, as it is inconsistent whether a player has more then one listed position. For the purposes of the modelling in this exercise, let's try to isolate the 5 positions, and assume each player mostly plays their primary position.  
 
 
@@ -677,16 +112,12 @@ df14_20['Pos'] = df14_20['Pos'].str.replace(r'-\w', '')
 df14_20['Pos'].value_counts()
 ```
 
-
-
-
     SG    601
     PG    554
     PF    549
     C     543
     SF    490
     Name: Pos, dtype: int64
-
 
 
 
@@ -711,15 +142,7 @@ df07_13 = pd.get_dummies(df07_13, drop_first=True)
 df00_06 = pd.get_dummies(df00_06, drop_first=True)
 ```
 
-Part 2b: Modelling
-
-
-```python
-# Filter warnings as many of the models give many unnecessary warnings: 
-import warnings
-warnings.filterwarnings('ignore')
-```
-
+Modelling:
 
 ```python
 # Now let's state the X and y variables clearly in order for modelling: 
@@ -733,7 +156,7 @@ X06 = df00_06.drop(['All-star'], axis=1)
 y06 = df00_06['All-star']
 ```
 
-
+First let's split up our dataset of the stats from 2014-2020 into a remainder and test set. The test set is set aside so there is no data leakage.
 ```python
 from sklearn.model_selection import train_test_split
 # Split up our data sets into remainder and test set:
@@ -750,6 +173,7 @@ X_remainder06, X_test06, y_remainder06, y_test06 = train_test_split(X06, y06, te
                                                             random_state=1)
 ```
 
+Next, we need to solve the problem mentioned earlier: there are far more players who do not qualify as an all-star versus players who do. If we do nothing and fit a model to these data points, any model would no-doubt be dramatically overfit, as just having a model assume 100% players are not all-stars would still perform well under most metrics. Therefore resampling needs to be done, more specifically a form of upsampling, given that downsimpling would result in two few datapoints to train on). SMOTE was chosen as it fit the data better. 
 
 ```python
 from imblearn.over_sampling import SMOTE
@@ -800,9 +224,10 @@ print(np.asarray((unique, counts)).T)
     
     [[   0 1742]
      [   1 1742]]
+Now this shows how many data points we have to train and optimize our models on. It is worth repeating that the test set has remained unaltered by resampling methods, as the test set needs to remain unseen data. 
 
 
-
+Then a second split needs to be made where we will seperate the remainder set (after smote) into the train and validation sets which will actually be used to tune the primary models. 
 ```python
 # For the 2014-2020 dataset: 
 X_train20, X_validation20, y_train20, y_validation20 = train_test_split(X_smote20, y_smote20, test_size=0.2, 
@@ -817,7 +242,7 @@ X_train06, X_validation06, y_train06, y_validation06 = train_test_split(X_smote0
                                                             random_state=1, stratify=y_smote06)
 ```
 
-
+Scale the data is important, however in order to pull out the coefficients of the best performing model X_train20 needs to remain as a dataframe with the column names present (normally scalers transform dataframes into a np array)
 ```python
 from sklearn.preprocessing import StandardScaler
 # First dataset: 
@@ -831,7 +256,6 @@ X_train20 = pd.DataFrame(scaled_features, index=X_train20.index, columns=X_train
 # transform X_test and X_validation as well:
 X_test20 = scaler.transform(X_test20)
 X_validation20 = scaler.transform(X_validation20)
-
 
 
 # 2nd Dataset: 
@@ -855,121 +279,6 @@ X_train06 = pd.DataFrame(scaled_features, index=X_train06.index, columns=X_train
 X_test06 = scaler2.transform(X_test06)
 X_validation06 = scaler3.transform(X_validation06)
 ```
-
-
-```python
-from sklearn.linear_model import LogisticRegression
-# Now let's find the optimal C value for our logistic regression model:
-C_range = np.array([0.00001, 0.0001, 0.001, 0.01,0.1,1,10,100,1000, 10000])
-validation_scores=[]
-train_scores=[]
-# For loop going through different possible regularization parameters. The lower the value the more regularization,
-# given that C is the inverse of regularization. 
-for c in C_range:
-    # Instantiate and fit a Logistic Regression model to the data. Solver set to 'lbfgs'. n_jobs=-1 in order to 
-    # improve processing speeds. 
-    myLogc = LogisticRegression(C=c, solver='lbfgs', n_jobs=-1, random_state=1)
-    myLogc.fit(X_train20,y_train20)
-    
-    # append results to score lists for plotting: 
-    train_scores.append(myLogc.score(X_train20,y_train20))
-    validation_scores.append(myLogc.score(X_validation20,y_validation20))
-```
-
-
-```python
-plt.figure()
-plt.plot(C_range, train_scores, label='Train accuracies', marker='.')
-plt.plot(C_range, validation_scores, label="Validation accuracies",marker='.')
-plt.legend()
-plt.xscale("log")
-plt.xlabel('Regularization Parameter: C')
-plt.ylabel('Accuracy Score')
-plt.title('Optimal Regularization Parameter for LogReg')
-plt.grid()
-plt.show();
-```
-
-
-![png](output_41_0.png)
-
-
-
-```python
-from sklearn.linear_model import LogisticRegression
-# Now let's find the optimal C value for our logistic regression model:
-C_range = np.array([0.00001, 0.0001, 0.001, 0.01,0.1,1,10,100,1000, 10000])
-validation_scores13=[]
-train_scores13=[]
-# For loop going through different possible regularization parameters. The lower the value the more regularization,
-# given that C is the inverse of regularization. 
-for c in C_range:
-    # Instantiate and fit a Logistic Regression model to the data. Solver set to 'lbfgs'. n_jobs=-1 in order to 
-    # improve processing speeds. 
-    myLog2 = LogisticRegression(C=c, solver='lbfgs', n_jobs=-1, random_state=1)
-    myLog2.fit(X_train13,y_train13)
-    
-    # append results to score lists for plotting: 
-    train_scores13.append(myLog2.score(X_train13,y_train13))
-    validation_scores13.append(myLog2.score(X_validation13,y_validation13))
-```
-
-
-```python
-plt.figure()
-plt.plot(C_range, train_scores13, label='Train accuracies', marker='.')
-plt.plot(C_range, validation_scores13, label="Validation accuracies",marker='.')
-plt.legend()
-plt.xscale("log")
-plt.xlabel('Regularization Parameter: C')
-plt.ylabel('Accuracy Score')
-plt.title('Optimal Regularization Parameter for LogReg')
-plt.grid()
-plt.show();
-```
-
-
-![png](output_43_0.png)
-
-
-
-```python
-from sklearn.linear_model import LogisticRegression
-# Now let's find the optimal C value for our logistic regression model:
-C_range = np.array([0.00001, 0.0001, 0.001, 0.01,0.1,1,10,100,1000, 10000])
-validation_scores06=[]
-train_scores06=[]
-# For loop going through different possible regularization parameters. The lower the value the more regularization,
-# given that C is the inverse of regularization. 
-for c in C_range:
-    # Instantiate and fit a Logistic Regression model to the data. Solver set to 'lbfgs'. n_jobs=-1 in order to 
-    # improve processing speeds. 
-    myLog3 = LogisticRegression(C=c, solver='lbfgs', n_jobs=-1, random_state=1)
-    myLog3.fit(X_train06,y_train06)
-    
-    # append results to score lists for plotting: 
-    train_scores06.append(myLog3.score(X_train06,y_train06))
-    validation_scores06.append(myLog3.score(X_validation06,y_validation06))
-```
-
-
-```python
-plt.figure()
-plt.plot(C_range, train_scores06, label='Train accuracies', marker='.')
-plt.plot(C_range, validation_scores06, label="Validation accuracies",marker='.')
-plt.legend()
-plt.xscale("log")
-plt.xlabel('Regularization Parameter: C')
-plt.ylabel('Accuracy Score')
-plt.title('Optimal Regularization Parameter for LogReg')
-plt.grid()
-plt.show();
-```
-
-
-![png](output_45_0.png)
-
-
 
 ```python
 from sklearn.model_selection import cross_val_score
@@ -996,62 +305,7 @@ plt.grid()
 plt.show();
 ```
 
-
-![png](output_46_0.png)
-
-
-
-```python
-C_range = np.array([0.00001, 0.0001, 0.001, 0.01,0.1,1,10,100,1000, 10000])
-cv_scores13=[]
-# loop over different C_values in order to find the optimal value for 5 crossfolds. (n_jobs=-1 resulted in an error
-# for this block of code):
-for c in C_range:
-    myLogcv = LogisticRegression(C=c, solver='lbfgs', random_state=1)
-    cv_score = np.mean(cross_val_score(myLogcv, X_smote13, y_smote13, cv=5))
-    cv_scores13.append(cv_score)
-
-plt.figure()
-plt.plot(C_range, cv_scores13, label="Cross Validation Score",marker='.')
-plt.legend()
-plt.xscale("log")
-plt.xlabel('Regularization Parameter: C')
-plt.ylabel('Cross Validation Score')
-plt.title('Cross Validation Scores for C values')
-plt.grid()
-plt.show();
-```
-
-
-![png](output_47_0.png)
-
-
-
-```python
-C_range = np.array([0.00001, 0.0001, 0.001, 0.01,0.1,1,10,100,1000, 10000])
-cv_scores06=[]
-# loop over different C_values in order to find the optimal value for 5 crossfolds. (n_jobs=-1 resulted in an error
-# for this block of code):
-for c in C_range:
-    myLogcv = LogisticRegression(C=c, solver='lbfgs', random_state=1)
-    cv_score = np.mean(cross_val_score(myLogcv, X_smote06, y_smote06, cv=5))
-    cv_scores06.append(cv_score)
-
-plt.figure()
-plt.plot(C_range, cv_scores06, label="Cross Validation Score",marker='.')
-plt.legend()
-plt.xscale("log")
-plt.xlabel('Regularization Parameter: C')
-plt.ylabel('Cross Validation Score')
-plt.title('Cross Validation Scores for C values')
-plt.grid()
-plt.show();
-```
-
-
-![png](output_48_0.png)
-
-
+![png](https://github.com/lkonarek/lkonarek.github.io/blob/images/v1.png)
 
 ```python
 # From the above, it makes sense to use a C value of 10^-1 for all three model. In addition, setting C values lower
@@ -1091,9 +345,6 @@ coefficients.columns=('Feature', 'Coefficients')
 Coef14_20 = coefficients.groupby('Coefficients').sum().sort_values('Coefficients', ascending=False)
 Coef14_20
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -1325,22 +576,23 @@ Coef14_20
 </table>
 </div>
 
-
-
-So we see from the above that the top 10 variables, that were most correlated with making the all star team were:  
+The above lists out all the table variables after all preprocessing ordered by their correlation coefficients in the model, or in other words, how highly correlated a given variable is in predicting the outcome of the y-variable according to the model. The top 5 are as such:
 1. Win Shares
 2. Defensive Winshares
 3. Assists 
 4. Defensive Rebounds
 5. Value Over Replacement Player
 
-The 5 features most negatively affecting the all star team are: 
+And the 5 features most negatively correlated to making the all star team are: 
 1. PER
 2. Minutes Played
 3. ORB%
 4. Personal Fouls
 5. Position - Small Forward
 
+These are certainly interesting results, especially PER being the least correlated with all-star status, as this is an oft quoted stat. However it is also very prone to high output per minute statistics, so a lot of players who don't play many minutes per game (perhaps because they are horrific defenders) but score quite a few points while they are on the court, often have very high PER stats (Boban Marjanovic is an example).
+
+For the other two eras now:
 
 ```python
 coefficients = pd.concat([pd.DataFrame(X_smote13.columns),pd.DataFrame(np.transpose(myLog2.coef_))], axis = 1)
@@ -1855,8 +1107,7 @@ Bottom 10 features in terms of importance against making the AS game:
 - Player Efficiency Rating
 - Games
 
-Interestingly, we can see that many of the top 5 features and bottom 5 features are consistent across the different eras. Although there are differences noticed over time, this shows that the best ways of evaluating players has not really changed much over the past 20 years. Also stats that are often quoted as being good metrics for evaluating players, Player Efficiency Rating for example, is consistently one of the worst predictors for determining if a player is elite.
-
+Interestingly, we can see that many of the top 5 features and bottom 5 features are quite consistent across the different eras. Although there are differences noticed over time, this shows that the best ways of evaluating players has not really changed much over the past 20 years. Also stats that are often quoted as being good metrics for evaluating players, Player Efficiency Rating for example, is consistently one of the worst predictors for determining if a player is elite.
 
 ```python
 # Now let's look at how the models predict the test set:
@@ -1864,7 +1115,6 @@ y_pred20 = myLog.predict(X_test20)
 y_pred13 = myLog2.predict(X_test13)
 y_pred06 = myLog3.predict(X_test06)
 ```
-
 
 ```python
 from sklearn.metrics import confusion_matrix
@@ -2560,6 +1810,1560 @@ print("test: ",ensemble.score(X_test20,y_test20))
     test:  0.9357664233576642
 
 
+Unsupervised Modelling:
+
+```python
+# Read in the data 
+df = pd.read_csv('data/2019-2020.csv')
+# In order to determine the right cut off for players, lets look at the middle point of minutes played: 
+print(df['MP'].median())
+print(df['MP'].mean())
+```
+
+    19.0
+    19.576268412438615
+
+This time let's use more then 19 mpg as the cut-off (therefore we are including the half of the players in the data set who play more):
+```python
+
+df = df[df['G']>20]
+
+df = df[df['MP']>19.0]
+```
+
+So far, we have identified a number of different features that were consistently highly involved in success in all of the eras (but especially the recent era):
+- Defensive Winshares
+- Winshares
+- Assists
+- Defensive Rebounds
+- VORP
+- Total Rebounds
+- Box Plus Minus
+- Points
+- Field Goals Attempted
+- Offensive Box Plus Minus
+- Block %
+- 2 Points Attempted
+- Turnovers
+- Free Throws Attempted
+- Block 
+- Usage Rate
+- Steals
+
+Let's also include other important stats for basketball assessment (the reason for including these is that they are three of the most often quoted advanced stats):
+- Free Throw Rate 
+- PER 
+- TS%
+- 3PAr
+
+
+```python
+df2 = df[['DWS', 'WS', 'AST', 'DRB', 'VORP', 'TRB', 'BPM', 'PTS', 'FGA', 'OBPM', 'BLK%', '2PA', 'TOV', 'FTA', 'BLK', 
+         'STL', 'USG%', 'FTr', 'PER', 'TS%', '3PAr', '2019-20']]
+```
+
+As we can see from a df.describe, the lowest negative number in any column is in BPM with -6.7, therefore let's add +7 to each column before doing a log transform:
+
+```python
+df2 = np.log(df2+7)
+```
+
+```python
+k_range = np.arange(1,20)
+
+inertia_list = []
+
+for k in k_range :
+    
+    #Specify the model
+    k_means_model = KMeans(n_clusters = k)
+    k_means_model.fit(df2)
+    
+    inertia_list.append(k_means_model.inertia_)
+
+plt.plot(k_range,inertia_list,marker = '.')
+plt.show()
+```
+
+
+![png](output_24_0.png)
+
+
+
+```python
+# Let's zoom in closer to the first 9 points on the graph:
+
+plt.figure()
+plt.scatter(np.arange(12),inertia_list[0:12])
+plt.xlabel('Number of Clusters')
+plt.ylabel('Inertia')
+plt.show();
+```
+
+
+![png](output_25_0.png)
+
+
+With the above, we can see that after ~8 clusters our inertia is relatively unchanged, meaning that adding another cluster after that point doesn't make much sense. Therefore picking a value from 4-8 clusters is probably best, as picking a value too low will likely result in too general/broad clusters to generate any interesting analysis. 
+For the purposes of our exercise let's use 5 clusters to investigate, as this is the same number of positions in basketball. 
+
+
+```python
+k_means_model = KMeans(n_clusters = 5)
+k_means_model.fit(df2)
+k_means_model.labels_
+```
+
+
+
+
+    array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+           0, 0, 0, 2, 2, 2, 3, 4, 3, 3, 3, 3, 4, 2, 1, 1, 4, 1, 4, 3, 4, 4,
+           4, 0, 4, 4, 3, 3, 4, 2, 3, 1, 1, 1, 4, 4, 4, 3, 4, 1, 4, 4, 1, 2,
+           4, 1, 1, 3, 2, 2, 2, 4, 2, 2, 2, 1, 1, 1, 2, 1, 3, 3, 3, 3, 4, 3,
+           0, 0, 3, 4, 1, 0, 0, 4, 2, 4, 3, 4, 1, 0, 1, 1, 3, 4, 3, 4, 0, 0,
+           1, 4, 1, 4, 3, 3, 1, 3, 4, 3, 3, 2, 4, 3, 1, 3, 1, 4, 1, 3, 3, 4,
+           0, 3, 3, 2, 3, 1, 3, 2, 2, 4, 4, 2, 3, 2, 1, 4, 3, 3, 2, 4, 4, 1,
+           3, 3, 4, 1, 0, 4, 4, 3, 1, 2, 1, 3, 2, 1, 3, 4, 1, 3, 3, 4, 4, 4,
+           3, 1, 3, 4, 1, 1, 1, 4, 4, 4, 4, 3, 1, 1, 3, 1, 4, 4, 4, 3, 4, 4,
+           1, 1, 4, 1, 4, 4, 2, 2, 1, 0, 4, 3, 1, 4, 3, 2, 4, 1, 1, 1, 1, 1,
+           1, 3, 1, 1, 1, 3, 4, 1, 4, 3, 1, 1, 4, 3, 2, 4, 2, 3, 0, 3, 2, 2,
+           1, 0, 3, 4, 1, 4, 4, 3, 2, 1, 1, 4, 1, 3, 3, 3, 3, 2, 3, 3, 1],
+          dtype=int32)
+
+
+
+
+```python
+df2_km = df2.copy()
+df2_km['kmeans_sol'] = k_means_model.labels_
+```
+
+
+```python
+# snapshot of the 5 clusters
+df2_km.groupby('kmeans_sol').mean().transpose()
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>kmeans_sol</th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>DWS</td>
+      <td>1.089187</td>
+      <td>-0.118166</td>
+      <td>0.548687</td>
+      <td>-0.024811</td>
+      <td>-0.738692</td>
+    </tr>
+    <tr>
+      <td>WS</td>
+      <td>1.381156</td>
+      <td>0.012983</td>
+      <td>0.668815</td>
+      <td>-0.029712</td>
+      <td>-1.075777</td>
+    </tr>
+    <tr>
+      <td>AST</td>
+      <td>1.328651</td>
+      <td>0.565980</td>
+      <td>-0.791423</td>
+      <td>-0.565461</td>
+      <td>-0.327528</td>
+    </tr>
+    <tr>
+      <td>DRB</td>
+      <td>1.107977</td>
+      <td>-0.133984</td>
+      <td>0.968799</td>
+      <td>-0.381751</td>
+      <td>-0.600395</td>
+    </tr>
+    <tr>
+      <td>VORP</td>
+      <td>1.657141</td>
+      <td>0.111497</td>
+      <td>0.307565</td>
+      <td>-0.141394</td>
+      <td>-1.034738</td>
+    </tr>
+    <tr>
+      <td>TRB</td>
+      <td>0.968013</td>
+      <td>-0.166451</td>
+      <td>1.236890</td>
+      <td>-0.392984</td>
+      <td>-0.614371</td>
+    </tr>
+    <tr>
+      <td>BPM</td>
+      <td>1.084868</td>
+      <td>0.240649</td>
+      <td>0.461379</td>
+      <td>0.068295</td>
+      <td>-1.114280</td>
+    </tr>
+    <tr>
+      <td>PTS</td>
+      <td>1.543781</td>
+      <td>0.554981</td>
+      <td>-0.146162</td>
+      <td>-0.716270</td>
+      <td>-0.609911</td>
+    </tr>
+    <tr>
+      <td>FGA</td>
+      <td>1.434590</td>
+      <td>0.629381</td>
+      <td>-0.436355</td>
+      <td>-0.772448</td>
+      <td>-0.421867</td>
+    </tr>
+    <tr>
+      <td>OBPM</td>
+      <td>1.246605</td>
+      <td>0.438353</td>
+      <td>0.287421</td>
+      <td>-0.204380</td>
+      <td>-1.040401</td>
+    </tr>
+    <tr>
+      <td>BLK%</td>
+      <td>0.051951</td>
+      <td>-0.469193</td>
+      <td>1.927399</td>
+      <td>-0.105306</td>
+      <td>-0.443236</td>
+    </tr>
+    <tr>
+      <td>2PA</td>
+      <td>1.442530</td>
+      <td>0.480557</td>
+      <td>0.332126</td>
+      <td>-1.048913</td>
+      <td>-0.402953</td>
+    </tr>
+    <tr>
+      <td>TOV</td>
+      <td>1.646895</td>
+      <td>0.467701</td>
+      <td>-0.348762</td>
+      <td>-0.829141</td>
+      <td>-0.378483</td>
+    </tr>
+    <tr>
+      <td>FTA</td>
+      <td>1.743716</td>
+      <td>0.302146</td>
+      <td>0.126064</td>
+      <td>-0.802153</td>
+      <td>-0.538401</td>
+    </tr>
+    <tr>
+      <td>BLK</td>
+      <td>0.305964</td>
+      <td>-0.372197</td>
+      <td>1.801321</td>
+      <td>-0.221262</td>
+      <td>-0.500407</td>
+    </tr>
+    <tr>
+      <td>STL</td>
+      <td>0.976409</td>
+      <td>0.226101</td>
+      <td>-0.575175</td>
+      <td>-0.163742</td>
+      <td>-0.308733</td>
+    </tr>
+    <tr>
+      <td>USG%</td>
+      <td>1.355556</td>
+      <td>0.580718</td>
+      <td>-0.321595</td>
+      <td>-0.889026</td>
+      <td>-0.278356</td>
+    </tr>
+    <tr>
+      <td>FTr</td>
+      <td>0.927128</td>
+      <td>-0.052748</td>
+      <td>0.913026</td>
+      <td>-0.552527</td>
+      <td>-0.385096</td>
+    </tr>
+    <tr>
+      <td>PER</td>
+      <td>1.391554</td>
+      <td>0.279338</td>
+      <td>0.894467</td>
+      <td>-0.530246</td>
+      <td>-0.961016</td>
+    </tr>
+    <tr>
+      <td>TS%</td>
+      <td>0.331474</td>
+      <td>-0.193822</td>
+      <td>1.116978</td>
+      <td>0.409780</td>
+      <td>-0.945280</td>
+    </tr>
+    <tr>
+      <td>3PAr</td>
+      <td>-0.488314</td>
+      <td>-0.003714</td>
+      <td>-1.432852</td>
+      <td>0.844415</td>
+      <td>0.172230</td>
+    </tr>
+    <tr>
+      <td>2019-20</td>
+      <td>0.859484</td>
+      <td>0.481034</td>
+      <td>0.005075</td>
+      <td>-0.254501</td>
+      <td>-0.679171</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+from scipy.cluster.hierarchy import dendrogram, linkage
+
+linkagemat = linkage(df2, 'ward')
+
+plt.figure(figsize=(25, 10))
+dendrogram(
+    linkagemat,
+    leaf_rotation=90.,  # rotates the x axis labels
+    leaf_font_size=0.  # font size for the x axis labels
+);
+```
+
+
+![png](output_30_0.png)
+
+
+
+```python
+# Dendrograms don't necessarily have the same interpretability in determining the ideal n_clusters like KMeans does, 
+# however for our purposes let's use the same value (n_clusters=5):
+from sklearn.cluster import AgglomerativeClustering
+hclust_model = AgglomerativeClustering(n_clusters=5, linkage='ward')
+hclust_model.fit(df2)
+hclust_model.labels_
+```
+
+
+
+
+    array([3, 3, 3, 3, 3, 1, 3, 1, 1, 1, 3, 2, 1, 1, 1, 3, 1, 3, 1, 3, 3, 1,
+           3, 1, 3, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 4, 1, 4, 0, 4, 4,
+           4, 1, 0, 4, 0, 0, 2, 2, 0, 1, 0, 1, 4, 4, 4, 0, 0, 1, 0, 0, 1, 2,
+           4, 0, 0, 0, 2, 2, 2, 4, 2, 2, 2, 0, 0, 0, 2, 1, 0, 0, 0, 0, 4, 0,
+           1, 1, 0, 4, 1, 3, 3, 0, 2, 4, 0, 0, 0, 1, 0, 1, 0, 4, 0, 0, 1, 1,
+           1, 4, 1, 4, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0,
+           1, 0, 0, 2, 0, 1, 0, 2, 2, 0, 4, 1, 0, 2, 0, 0, 0, 2, 2, 4, 0, 0,
+           0, 0, 0, 0, 1, 4, 0, 0, 1, 2, 1, 0, 2, 0, 0, 4, 1, 0, 0, 0, 0, 0,
+           0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 4, 0, 0, 0, 0,
+           0, 0, 0, 0, 4, 0, 2, 2, 0, 1, 4, 0, 0, 0, 0, 2, 0, 1, 0, 1, 1, 1,
+           1, 0, 0, 1, 1, 0, 4, 1, 0, 0, 0, 0, 0, 0, 2, 4, 1, 0, 3, 0, 2, 2,
+           1, 1, 2, 0, 0, 0, 0, 2, 2, 1, 1, 4, 1, 0, 0, 0, 0, 2, 0, 0, 1])
+
+
+
+
+```python
+# In order to see how similar the two models are: 
+from sklearn.metrics import adjusted_rand_score
+adjusted_rand_score(k_means_model.labels_,hclust_model.labels_)
+```
+
+
+
+
+    0.3423373225160187
+
+
+
+Not great Adjusted Rand index score, however this can be expected given how hclust and kmeans are calculated in very different ways. Simply put, kmeans works by attempting to find possible centre points for each cluster, and then puts each data point into whichever cluster has the nearest centre point. The hcluster model which uses agglomerative clustering looks at the variance of the data points and makes clusters based of miminising the variance within clusters. 
+
+
+```python
+df2_hc = df2.copy()
+df2_hc['hclust_sol'] = hclust_model.labels_
+```
+
+
+```python
+df2_km['ind'] = np.ones(len(df2_km.kmeans_sol))
+df2_hc['ind'] = np.zeros(len(df2_km.kmeans_sol))
+```
+
+
+```python
+# Stick the two graphs together to visualize: 
+full_df2 = pd.concat([df2_km,df2_hc])
+# done in this way because seaborn requires data to be this way: 
+full_df2.hclust_sol[:len(df2_km.kmeans_sol)] = df2_km.kmeans_sol
+```
+
+
+```python
+full_df2
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>2019-20</th>
+      <th>2PA</th>
+      <th>3PAr</th>
+      <th>AST</th>
+      <th>BLK</th>
+      <th>BLK%</th>
+      <th>BPM</th>
+      <th>DRB</th>
+      <th>DWS</th>
+      <th>FGA</th>
+      <th>FTA</th>
+      <th>FTr</th>
+      <th>OBPM</th>
+      <th>PER</th>
+      <th>PTS</th>
+      <th>STL</th>
+      <th>TOV</th>
+      <th>TRB</th>
+      <th>TS%</th>
+      <th>USG%</th>
+      <th>VORP</th>
+      <th>WS</th>
+      <th>hclust_sol</th>
+      <th>ind</th>
+      <th>kmeans_sol</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>1.641947</td>
+      <td>1.088899</td>
+      <td>0.869614</td>
+      <td>2.179381</td>
+      <td>0.821316</td>
+      <td>0.271810</td>
+      <td>1.907255</td>
+      <td>0.805012</td>
+      <td>1.437003</td>
+      <td>2.345187</td>
+      <td>3.817334</td>
+      <td>2.217939</td>
+      <td>2.275568</td>
+      <td>2.359121</td>
+      <td>2.747742</td>
+      <td>2.180719</td>
+      <td>3.166709</td>
+      <td>0.655087</td>
+      <td>1.032005</td>
+      <td>2.302224</td>
+      <td>3.763570</td>
+      <td>3.012560</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>0.098279</td>
+      <td>1.409578</td>
+      <td>0.287032</td>
+      <td>2.663907</td>
+      <td>-0.733690</td>
+      <td>-0.922195</td>
+      <td>1.824479</td>
+      <td>2.034920</td>
+      <td>1.011760</td>
+      <td>2.036797</td>
+      <td>2.935367</td>
+      <td>1.579258</td>
+      <td>2.155858</td>
+      <td>2.261708</td>
+      <td>2.205857</td>
+      <td>0.605785</td>
+      <td>2.877937</td>
+      <td>1.650563</td>
+      <td>0.368975</td>
+      <td>2.366793</td>
+      <td>2.853644</td>
+      <td>2.019973</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>1.632591</td>
+      <td>1.787952</td>
+      <td>-0.330848</td>
+      <td>3.304307</td>
+      <td>-0.049520</td>
+      <td>-0.258448</td>
+      <td>1.866263</td>
+      <td>1.562907</td>
+      <td>2.140633</td>
+      <td>1.881597</td>
+      <td>1.585902</td>
+      <td>0.315873</td>
+      <td>2.052198</td>
+      <td>2.016704</td>
+      <td>1.884759</td>
+      <td>0.876214</td>
+      <td>2.681092</td>
+      <td>1.194245</td>
+      <td>0.327442</td>
+      <td>1.751035</td>
+      <td>3.435862</td>
+      <td>2.453350</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>1.502731</td>
+      <td>1.964731</td>
+      <td>-0.526641</td>
+      <td>1.157317</td>
+      <td>0.172467</td>
+      <td>0.049792</td>
+      <td>1.907255</td>
+      <td>1.289441</td>
+      <td>1.744581</td>
+      <td>1.928761</td>
+      <td>2.099520</td>
+      <td>0.756766</td>
+      <td>1.988184</td>
+      <td>2.119083</td>
+      <td>2.016599</td>
+      <td>2.432604</td>
+      <td>1.307114</td>
+      <td>0.985395</td>
+      <td>0.389737</td>
+      <td>1.942034</td>
+      <td>2.792708</td>
+      <td>1.855387</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>1.319202</td>
+      <td>2.021994</td>
+      <td>-1.017821</td>
+      <td>0.191033</td>
+      <td>3.734960</td>
+      <td>2.779987</td>
+      <td>1.838497</td>
+      <td>1.651445</td>
+      <td>2.798411</td>
+      <td>1.637499</td>
+      <td>2.645433</td>
+      <td>1.729150</td>
+      <td>1.833108</td>
+      <td>2.331487</td>
+      <td>1.994953</td>
+      <td>1.668145</td>
+      <td>1.079510</td>
+      <td>1.681642</td>
+      <td>0.990647</td>
+      <td>1.513664</td>
+      <td>3.033377</td>
+      <td>2.684766</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <td>597</td>
+      <td>-1.915297</td>
+      <td>-1.393099</td>
+      <td>0.879847</td>
+      <td>-1.115652</td>
+      <td>-0.049520</td>
+      <td>0.625891</td>
+      <td>-0.290362</td>
+      <td>-0.927727</td>
+      <td>-1.026690</td>
+      <td>-1.431055</td>
+      <td>-0.902735</td>
+      <td>-0.145317</td>
+      <td>-0.680534</td>
+      <td>-0.727594</td>
+      <td>-1.297768</td>
+      <td>-0.798493</td>
+      <td>-1.358240</td>
+      <td>-0.986821</td>
+      <td>0.555734</td>
+      <td>-1.111634</td>
+      <td>-0.593012</td>
+      <td>-0.788673</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>605</td>
+      <td>-1.392308</td>
+      <td>-0.059673</td>
+      <td>-0.585042</td>
+      <td>-1.115652</td>
+      <td>0.821316</td>
+      <td>1.218658</td>
+      <td>0.910911</td>
+      <td>0.441872</td>
+      <td>0.103460</td>
+      <td>-0.471836</td>
+      <td>0.716441</td>
+      <td>1.862084</td>
+      <td>1.256225</td>
+      <td>1.584242</td>
+      <td>0.104494</td>
+      <td>-1.090414</td>
+      <td>-0.264870</td>
+      <td>0.617025</td>
+      <td>1.918578</td>
+      <td>0.565699</td>
+      <td>0.750431</td>
+      <td>0.937387</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>606</td>
+      <td>0.301147</td>
+      <td>-0.672089</td>
+      <td>-0.420684</td>
+      <td>0.355118</td>
+      <td>-0.502516</td>
+      <td>-0.258448</td>
+      <td>0.755357</td>
+      <td>-0.477967</td>
+      <td>0.453716</td>
+      <td>-1.161815</td>
+      <td>-0.765650</td>
+      <td>-0.162464</td>
+      <td>0.237147</td>
+      <td>0.277041</td>
+      <td>-1.140965</td>
+      <td>0.876214</td>
+      <td>-0.797882</td>
+      <td>-0.347752</td>
+      <td>-0.067661</td>
+      <td>-0.935812</td>
+      <td>0.668360</td>
+      <td>0.603051</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>607</td>
+      <td>0.600195</td>
+      <td>-0.059673</td>
+      <td>-0.094049</td>
+      <td>-0.581360</td>
+      <td>-0.274488</td>
+      <td>-0.180017</td>
+      <td>-0.253340</td>
+      <td>-0.175588</td>
+      <td>0.792229</td>
+      <td>-0.152281</td>
+      <td>-0.972536</td>
+      <td>-1.165194</td>
+      <td>-0.574613</td>
+      <td>-0.353182</td>
+      <td>-0.444279</td>
+      <td>1.407317</td>
+      <td>-0.007809</td>
+      <td>0.051856</td>
+      <td>-0.944582</td>
+      <td>0.017676</td>
+      <td>-0.398504</td>
+      <td>-0.563909</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>608</td>
+      <td>0.711592</td>
+      <td>0.273793</td>
+      <td>-1.222535</td>
+      <td>-0.775801</td>
+      <td>-0.274488</td>
+      <td>0.049792</td>
+      <td>-0.077168</td>
+      <td>0.279482</td>
+      <td>-0.259382</td>
+      <td>-0.444259</td>
+      <td>0.282804</td>
+      <td>1.009709</td>
+      <td>0.157347</td>
+      <td>0.816203</td>
+      <td>-0.278910</td>
+      <td>-0.510388</td>
+      <td>-0.395705</td>
+      <td>0.913827</td>
+      <td>0.202780</td>
+      <td>0.207535</td>
+      <td>-0.303213</td>
+      <td>0.290485</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+<p>526 rows × 25 columns</p>
+</div>
+
+
+
+
+```python
+# plotting side by side histograms for all features 
+# left is hclust (ind = 0) and right is kmeans (ind = 1)
+for col in full_df2.columns[:-3]:
+    plt.figure(figsize=(20,30));
+    g = sns.FacetGrid(full_df2, col='ind',hue='hclust_sol', margin_titles=True,height=8);
+    g.map(sns.distplot, col);
+    plt.show();
+```
+
+
+    <Figure size 1440x2160 with 0 Axes>
+
+
+
+![png](output_38_1.png)
+
+
+
+    <Figure size 1440x2160 with 0 Axes>
+
+
+
+![png](output_38_3.png)
+
+
+
+    <Figure size 1440x2160 with 0 Axes>
+
+
+
+![png](output_38_5.png)
+
+
+
+    <Figure size 1440x2160 with 0 Axes>
+
+
+
+![png](output_38_7.png)
+
+
+
+    <Figure size 1440x2160 with 0 Axes>
+
+
+
+![png](output_38_9.png)
+
+
+
+    <Figure size 1440x2160 with 0 Axes>
+
+
+
+![png](output_38_11.png)
+
+
+
+    <Figure size 1440x2160 with 0 Axes>
+
+
+
+![png](output_38_13.png)
+
+
+
+    <Figure size 1440x2160 with 0 Axes>
+
+
+
+![png](output_38_15.png)
+
+
+
+    <Figure size 1440x2160 with 0 Axes>
+
+
+
+![png](output_38_17.png)
+
+
+
+    <Figure size 1440x2160 with 0 Axes>
+
+
+
+![png](output_38_19.png)
+
+
+
+    <Figure size 1440x2160 with 0 Axes>
+
+
+
+![png](output_38_21.png)
+
+
+
+    <Figure size 1440x2160 with 0 Axes>
+
+
+
+![png](output_38_23.png)
+
+
+
+    <Figure size 1440x2160 with 0 Axes>
+
+
+
+![png](output_38_25.png)
+
+
+
+    <Figure size 1440x2160 with 0 Axes>
+
+
+
+![png](output_38_27.png)
+
+
+
+    <Figure size 1440x2160 with 0 Axes>
+
+
+
+![png](output_38_29.png)
+
+
+
+    <Figure size 1440x2160 with 0 Axes>
+
+
+
+![png](output_38_31.png)
+
+
+
+    <Figure size 1440x2160 with 0 Axes>
+
+
+
+![png](output_38_33.png)
+
+
+
+    <Figure size 1440x2160 with 0 Axes>
+
+
+
+![png](output_38_35.png)
+
+
+
+    <Figure size 1440x2160 with 0 Axes>
+
+
+
+![png](output_38_37.png)
+
+
+
+    <Figure size 1440x2160 with 0 Axes>
+
+
+
+![png](output_38_39.png)
+
+
+
+    <Figure size 1440x2160 with 0 Axes>
+
+
+
+![png](output_38_41.png)
+
+
+
+    <Figure size 1440x2160 with 0 Axes>
+
+
+
+![png](output_38_43.png)
+
+
+So which model should we 'trust', Hclust or KMeans? Hard to say definitively. However for the contract value plots above, it seems that both methods generation roughly the same clusters (this is encouraging). 
+
+Ultimately this is where some other logic and/or domain knowledge can be applied. Intuitively speaking given that KMeans classifies points and their clusters on the distance between similar data points (more specifically the distance to the closest centre of the cluster), it is fair to say that this may be a better clustering tool for fitting the data then HClust.
+
+
+```python
+# Unscale the data so we can see the average of the clusters better: 
+df2_km_u = df2_km.copy()
+df2_km_u.iloc[:,:-2] = scaler2.inverse_transform(df2_km_u.iloc[:,:-2])
+df2_km_u.iloc[:,:-2] = np.exp(df2_km_u.iloc[:,:-2])-7
+```
+
+
+```python
+# The statistical averages of each cluster: 
+df2_km_u.groupby('kmeans_sol').mean().transpose()
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>kmeans_sol</th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>DWS</td>
+      <td>2.424324</td>
+      <td>1.340323</td>
+      <td>1.921212</td>
+      <td>1.418750</td>
+      <td>0.832836</td>
+    </tr>
+    <tr>
+      <td>WS</td>
+      <td>6.416216</td>
+      <td>3.088710</td>
+      <td>4.590909</td>
+      <td>2.985937</td>
+      <td>1.064179</td>
+    </tr>
+    <tr>
+      <td>AST</td>
+      <td>5.527027</td>
+      <td>3.951613</td>
+      <td>1.487879</td>
+      <td>1.860938</td>
+      <td>2.270149</td>
+    </tr>
+    <tr>
+      <td>DRB</td>
+      <td>6.108108</td>
+      <td>3.638710</td>
+      <td>5.754545</td>
+      <td>3.228125</td>
+      <td>2.847761</td>
+    </tr>
+    <tr>
+      <td>VORP</td>
+      <td>2.972973</td>
+      <td>0.967742</td>
+      <td>1.203030</td>
+      <td>0.685938</td>
+      <td>-0.217910</td>
+    </tr>
+    <tr>
+      <td>TRB</td>
+      <td>7.586486</td>
+      <td>4.491935</td>
+      <td>8.221212</td>
+      <td>4.004687</td>
+      <td>3.500000</td>
+    </tr>
+    <tr>
+      <td>BPM</td>
+      <td>4.270270</td>
+      <td>0.506452</td>
+      <td>1.378788</td>
+      <td>-0.062500</td>
+      <td>-2.629851</td>
+    </tr>
+    <tr>
+      <td>PTS</td>
+      <td>23.102703</td>
+      <td>16.012903</td>
+      <td>12.157576</td>
+      <td>9.228125</td>
+      <td>9.811940</td>
+    </tr>
+    <tr>
+      <td>FGA</td>
+      <td>17.110811</td>
+      <td>12.945161</td>
+      <td>8.651515</td>
+      <td>7.257813</td>
+      <td>8.592537</td>
+    </tr>
+    <tr>
+      <td>OBPM</td>
+      <td>3.694595</td>
+      <td>1.048387</td>
+      <td>0.690909</td>
+      <td>-0.532813</td>
+      <td>-2.007463</td>
+    </tr>
+    <tr>
+      <td>BLK%</td>
+      <td>1.786486</td>
+      <td>1.056452</td>
+      <td>4.684848</td>
+      <td>1.548438</td>
+      <td>1.091045</td>
+    </tr>
+    <tr>
+      <td>2PA</td>
+      <td>11.794595</td>
+      <td>7.879032</td>
+      <td>7.430303</td>
+      <td>3.184375</td>
+      <td>4.997015</td>
+    </tr>
+    <tr>
+      <td>TOV</td>
+      <td>3.035135</td>
+      <td>2.000000</td>
+      <td>1.345455</td>
+      <td>0.982813</td>
+      <td>1.322388</td>
+    </tr>
+    <tr>
+      <td>FTA</td>
+      <td>6.202703</td>
+      <td>3.183871</td>
+      <td>2.875758</td>
+      <td>1.364063</td>
+      <td>1.780597</td>
+    </tr>
+    <tr>
+      <td>BLK</td>
+      <td>0.675676</td>
+      <td>0.359677</td>
+      <td>1.393939</td>
+      <td>0.428125</td>
+      <td>0.302985</td>
+    </tr>
+    <tr>
+      <td>STL</td>
+      <td>1.245946</td>
+      <td>0.967742</td>
+      <td>0.681818</td>
+      <td>0.829688</td>
+      <td>0.776119</td>
+    </tr>
+    <tr>
+      <td>USG%</td>
+      <td>28.743243</td>
+      <td>23.301613</td>
+      <td>18.112121</td>
+      <td>15.209375</td>
+      <td>18.426866</td>
+    </tr>
+    <tr>
+      <td>FTr</td>
+      <td>0.364946</td>
+      <td>0.249177</td>
+      <td>0.364121</td>
+      <td>0.190969</td>
+      <td>0.210701</td>
+    </tr>
+    <tr>
+      <td>PER</td>
+      <td>22.232432</td>
+      <td>16.179032</td>
+      <td>19.366667</td>
+      <td>12.696875</td>
+      <td>11.094030</td>
+    </tr>
+    <tr>
+      <td>TS%</td>
+      <td>0.582243</td>
+      <td>0.557000</td>
+      <td>0.620303</td>
+      <td>0.586062</td>
+      <td>0.521030</td>
+    </tr>
+    <tr>
+      <td>3PAr</td>
+      <td>0.295865</td>
+      <td>0.387242</td>
+      <td>0.119576</td>
+      <td>0.551641</td>
+      <td>0.421030</td>
+    </tr>
+    <tr>
+      <td>2019-20</td>
+      <td>21894.641459</td>
+      <td>14510.489919</td>
+      <td>11121.900333</td>
+      <td>7176.920859</td>
+      <td>5218.577522</td>
+    </tr>
+    <tr>
+      <td>ind</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+from scipy import stats
+sum_stats = pd.DataFrame()
+sum_stats['Variable'] = df2_km.columns[:-2]
+sum_stats['Kmeans'] = np.full(len(sum_stats['Variable']),np.nan)
+sum_stats['Hclust'] = np.full(len(sum_stats['Variable']),np.nan)
+# the above two columns will store p-values from tests of difference between our found groups
+# in all the features
+```
+
+
+```python
+# Normality Tests: QQ Plot:
+for col in df2_km.columns[:-2]:
+    data1 = df2_hc.loc[df2_hc.hclust_sol==0,col]
+    data2 = df2_hc.loc[df2_hc.hclust_sol==1,col]
+    plt.figure()
+    stats.probplot(data2, dist="norm", plot = plt);
+    plt.show();
+```
+
+
+![png](output_43_0.png)
+
+
+
+![png](output_43_1.png)
+
+
+
+![png](output_43_2.png)
+
+
+
+![png](output_43_3.png)
+
+
+
+![png](output_43_4.png)
+
+
+
+![png](output_43_5.png)
+
+
+
+![png](output_43_6.png)
+
+
+
+![png](output_43_7.png)
+
+
+
+![png](output_43_8.png)
+
+
+
+![png](output_43_9.png)
+
+
+
+![png](output_43_10.png)
+
+
+
+![png](output_43_11.png)
+
+
+
+![png](output_43_12.png)
+
+
+
+![png](output_43_13.png)
+
+
+
+![png](output_43_14.png)
+
+
+
+![png](output_43_15.png)
+
+
+
+![png](output_43_16.png)
+
+
+
+![png](output_43_17.png)
+
+
+
+![png](output_43_18.png)
+
+
+
+![png](output_43_19.png)
+
+
+
+![png](output_43_20.png)
+
+
+
+![png](output_43_21.png)
+
+
+As we can see from the above, the majority of stats are seemingly normal judging from the plots above, however let's do a Mann-Whitney U Test to confirm this further:
+
+
+```python
+# For kmeans solution: 
+for i in range(len(df2_km.columns[:-2])):
+    col = df2_km.columns[:-2][i]
+    data1 = df2_km.loc[df2_km.kmeans_sol==0,col]
+    data2 = df2_km.loc[df2_km.kmeans_sol==1,col]
+    test_res = stats.mannwhitneyu(data1,data2)
+    sum_stats.iloc[i,1]=round(test_res[1],8)
+```
+
+
+```python
+# and for hclust solution: 
+for i in range(len(df2_hc.columns[:-2])):
+    col = df2_hc.columns[:-2][i]
+    data1 = df2_hc.loc[df2_hc.hclust_sol==0,col]
+    data2 = df2_hc.loc[df2_hc.hclust_sol==1,col]
+    test_res = stats.mannwhitneyu(data1,data2)
+    sum_stats.iloc[i,2]=round(test_res[1],8)
+```
+
+
+```python
+sum_stats
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Variable</th>
+      <th>Kmeans</th>
+      <th>Hclust</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>DWS</td>
+      <td>9.000000e-08</td>
+      <td>3.115400e-04</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>WS</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>AST</td>
+      <td>2.896000e-04</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>DRB</td>
+      <td>2.000000e-08</td>
+      <td>8.800000e-07</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>VORP</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>TRB</td>
+      <td>7.000000e-08</td>
+      <td>5.070000e-06</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>BPM</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>PTS</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>FGA</td>
+      <td>1.000000e-08</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <td>9</td>
+      <td>OBPM</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>BLK%</td>
+      <td>1.276740e-03</td>
+      <td>2.101827e-01</td>
+    </tr>
+    <tr>
+      <td>11</td>
+      <td>2PA</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <td>12</td>
+      <td>TOV</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <td>13</td>
+      <td>FTA</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <td>14</td>
+      <td>BLK</td>
+      <td>1.312800e-04</td>
+      <td>1.476096e-01</td>
+    </tr>
+    <tr>
+      <td>15</td>
+      <td>STL</td>
+      <td>1.934800e-04</td>
+      <td>6.120890e-03</td>
+    </tr>
+    <tr>
+      <td>16</td>
+      <td>USG%</td>
+      <td>1.000000e-08</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <td>17</td>
+      <td>FTr</td>
+      <td>8.000000e-08</td>
+      <td>4.000000e-08</td>
+    </tr>
+    <tr>
+      <td>18</td>
+      <td>PER</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <td>19</td>
+      <td>TS%</td>
+      <td>4.620000e-05</td>
+      <td>3.428703e-01</td>
+    </tr>
+    <tr>
+      <td>20</td>
+      <td>3PAr</td>
+      <td>4.145280e-03</td>
+      <td>4.370000e-06</td>
+    </tr>
+    <tr>
+      <td>21</td>
+      <td>2019-20</td>
+      <td>2.992080e-03</td>
+      <td>0.000000e+00</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+The above table shows that we can see statistically significant differences in the found groups for all variables for both the Kmeans and Hclust section.
+
+Final Takeaways from Unsupervised Learning Section:
+
+Notes:
+- The assumptions used (more then 20 games played and more then 19 minutes per game) are fairly high thresholds, which leaves ~300 rows. Clustering would be more accurate if more rows were included, however the risk of including players who don't play enough was seen as a higher risk for inaccuracy.
+- A log transform was used to try to normalize the data, however more could be done to normalize the data further and perhaps improve accuracy. 
+- Other stats could have been included with the 21 columns that were added to the clustering analysis for df2 (+ contract values). Some of the added columns were added in order to have every aspect of basketball covered (rather then them showing up as extremely important in the supervised learning section). For example: FTr, 3PAr and TS% were added in order to have a proxy for how often a player gets to the free throw line, how often they shoot threes and how efficient they are overall. 
+
+Takeaways: 
+There are 5 groups from the finalized clustering analysis (which can be put into the following 5 player types):
+
+Cluster 1: “The Superstars”:
+- Best Overall stats, highest WS/DWS. Statistical averages: 23.1 PPG/ 7.6TRB/ 5.5AST/ 1.2STL/ 0.7BLK. Average Contract: 21.894MM
+
+Cluster 2: “Jack of All Trades”:
+- Well-rounded stats. Stat averages: 16.0PPG / 4.5 TRB / 4.0 AST / 1.0 STL / 0.4 BLK. Average Contract: 14.511MM
+
+Cluster 3: “Big Men”:
+- Extremely efficient. Second highest WS/DWS. Statistical averages: 12.1 PPG / 8.2 TRB / 1.5 AST / 0.7 STL / 1.4 BLK. Average Contract: 11.122MM
+
+Cluster 4: “3 and D”:
+- Good defenders, third highest DWS, limited offensively. Statistical averages: 9.3 PPG / 4.0 RPG / 1.9 AST / 0.8 STL / 0.4 BLK. Average Contract: 7.177MM
+
+Cluster 5: “Bench Player”:
+- Average across the board, clearly worse than the other clusters. Statistical averages: 9.8 PPG / 3.5 RPG / 2.3 AST / 0.7 STL / 0.3 BLK. Average Contract: 5.218MM
+
+----
+
 Conclusions of Part 2: 
 Final considerations:
 - In this example, logistic regression made the most sense, given that it had the best (or close to the best) scores and has the extra intrepretability of being able to easily find the feature coefficients and intepret them. In addition, incorporating domain specific knowledge the results of the most important categories make the most sense with using a Logistic model.
@@ -2578,3 +3382,9 @@ Other decisions could be made in place of these decisions, which could affect th
 - Due to most of the models above showing signs of overfitting, decisions were often made to be more conservative to mitigate the affect of this problem (ex: smaller C values for logistic regression, etc.).
 
 - Many of the stats found to be most impactful in the present era were also found to be the most impactful in previous eras as well. This is a surprising finding; although I understood that stats like WS/DWS were very important I was not expecting them to be #1/#2 respectively for each year. DWS makes some sense as a very impactful statistic given that very few bball stats account for defense (blocks and steals are two of the most quoted) and defense accounts for half of all basketball, however the consistency of it being in the top 2 for each era was a very interesting finding nontheless. 
+
+
+
+Final Considerations and Business Cases: 
+The primary business application in this case is that the clustering model can be used to analyze how much to pay for certain players. Evaluating a player against his most similar player archetype of the five above, would help determine which free agents are overpriced and which are potential bargains.
+Not all the goals I hoped to achieve in this analysis could be completed due to the time restrictions. In the future, I would like to look into anciliary stats like jersey sales and social media followers in order to assess the additional value a player brings to a franchise (and likely increase the relative value of the superstar cluster). I would also like to perform clustering analysis on earlier “eras” to see if similar player types emerge.
