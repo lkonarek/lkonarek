@@ -287,8 +287,7 @@ from sklearn.model_selection import cross_val_score
 # before, looping through a range of possible C values:
 C_range = np.array([0.00001, 0.0001, 0.001, 0.01,0.1,1,10,100,1000, 10000])
 cv_scores20=[]
-# loop over different C_values in order to find the optimal value for 5 crossfolds. (n_jobs=-1 resulted in an error
-# for this block of code):
+# loop over different C_values in order to find the optimal value for 5 crossfolds.
 for c in C_range:
     myLogcv = LogisticRegression(C=c, solver='lbfgs', random_state=1)
     cv_score = np.mean(cross_val_score(myLogcv, X_smote20, y_smote20, cv=5))
@@ -305,7 +304,7 @@ plt.grid()
 plt.show();
 ```
 
-![V1](V1.png)
+![image 1](https://github.com/lkonarek/lkonarek.github.io/blob/images/image1.png?raw=true)
 
 ```python
 # From the above, it makes sense to use a C value of 10^-1 for all three model. In addition, setting C values lower
