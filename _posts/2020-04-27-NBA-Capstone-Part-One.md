@@ -304,7 +304,7 @@ plt.grid()
 plt.show();
 ```
 
-![image 1](https://github.com/lkonarek/lkonarek.github.io/blob/images/image1.png?raw=true)
+![png]({{site.baseurl}}/images/image1.png)
 
 ```python
 # From the above, it makes sense to use a C value of 10^-1 for all three model. In addition, setting C values lower
