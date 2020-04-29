@@ -1367,6 +1367,6 @@ Cluster 5: “Bench Player”:
 ![second pic]({{ site.baseurl }}/images/image12.png)
 
 
-##Conclusion and Business Cases: 
+## Conclusion and Business Cases: 
 The primary business application in this case is that the clustering model can be used to analyze how much to pay for certain players. Evaluating a player against his most similar player archetype of the five above, would help determine which free agents are overpriced and which are potential bargains.
 Not all the goals I hoped to achieve in this analysis could be completed due to the time restrictions. In the future, I would like to look into anciliary stats like jersey sales and social media followers in order to assess the additional value a player brings to a franchise (and likely increase the relative value of the superstar cluster). I would also like to perform clustering analysis on earlier “eras” to see if similar player types emerge.
