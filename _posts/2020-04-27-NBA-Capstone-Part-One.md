@@ -48,7 +48,6 @@ As we can see the classification problem is very biased (0 means non all-star an
 
 Now it is important that we define the threshold for a player essentially making into the dataset. Given that some players get called up from the NBA development league (the G-league) throughout the season as team need requires. Therefore roughly a quarter of the season (20 games of the total 82 games) and 8 minutes per game (1/6th of a total individual game). As you can also see, the same threshold was chosen for each season: 
 ```python
-
 df14_20 = df14_20[df14_20['G']>20]
 df14_20 = df14_20[df14_20['MP']>8.0]
 
@@ -62,8 +61,6 @@ df00_06 = df00_06[df00_06['MP']>8.0]
 At this point, now that we have actually created the above thresholds, the only columns that have any null values is 3% and it is only for the players who have recorded no 3 pointers (fairly common for players who are centres and don't shoot long range shots at all):
 
 ```python
-# Given that 3p% being null is due to centers in the nba who don't shoot them at all, and therefore record a null 3p% 
-# stat, we will fill them in with 0's:
 df14_20['3P%'] = df14_20['3P%'].fillna(0)
 df07_13['3P%'] = df07_13['3P%'].fillna(0)
 df00_06['3P%'] = df00_06['3P%'].fillna(0)
@@ -71,12 +68,8 @@ df00_06['3P%'] = df00_06['3P%'].fillna(0)
 
 The Last cleaning decision that needs to be made is regarding positions, at this point the data is saved as such 
 ```python
-# Another decision that needs to be made is in regards to positions, currently the data is saved as such: 
 df14_20['Pos'].value_counts()
 ```
-
-
-
 
     SG       594
     PG       552
@@ -92,7 +85,6 @@ df14_20['Pos'].value_counts()
     PF-C       2
     SF-PF      2
     SG-PF      1
-    Name: Pos, dtype: int64
 
 Ultimately the best way to deal with this seems to be to remove the secondary position altogether, as it is inconsistent whether a player has more then one listed position. For the purposes of the modelling in this exercise, let's try to isolate the 5 positions, and assume each player mostly plays their primary position.  
 
@@ -104,6 +96,7 @@ df14_20['Pos'] = df14_20['Pos'].str.replace(r'-\w', '')
 df14_20['Pos'].value_counts()
 ```
 Now these are the values of the positions remaining (for all the seasons from 2014-2020):
+
     SG    601
     PG    554
     PF    549
@@ -120,13 +113,13 @@ df14_20 = pd.get_dummies(df14_20, drop_first=True)
 
 ## Supervised Modelling:
 
+First let's state the X and y variables clearly in order to do modelling:
 ```python
-# Now let's state the X and y variables clearly in order for modelling: 
 y20 = df14_20['All-star']
 X20 = df14_20.drop(['All-star'], axis=1)
 ```
 
-First let's split up our dataset of the stats from 2014-2020 into a remainder and test set. The test set is set aside so there is no data leakage.
+Then let's split up the remainder and test set. The test set is set aside so there is no data leakage.
 ```python
 from sklearn.model_selection import train_test_split
 # Split up our data sets into remainder and test set:
@@ -162,15 +155,13 @@ Now this shows how many data points we have to train and optimize our models on.
 
 Then a second split needs to be made where we will seperate the remainder set (after smote) into the train and validation sets which will actually be used to tune the primary models. 
 ```python
-# For the 2014-2020 dataset: 
 X_train20, X_validation20, y_train20, y_validation20 = train_test_split(X_smote20, y_smote20, test_size=0.2, 
                                                             random_state=1, stratify=y_smote20)
 ```
 
-Scale the data is important, however in order to pull out the coefficients of the best performing model X_train20 needs to remain as a dataframe with the column names present (normally scalers transform dataframes into a np array)
+Scaling the data is important, however in order to pull out the coefficients of the best performing model 'X_train20' needs to remain as a dataframe with the column names present (normally scalers transform dataframes into a np array):
 ```python
 from sklearn.preprocessing import StandardScaler
-# First dataset: 
 scaler = StandardScaler()
 scaler = scaler.fit(X_train20)
 
@@ -181,6 +172,7 @@ X_train20 = pd.DataFrame(scaled_features, index=X_train20.index, columns=X_train
 # transform X_test and X_validation as well:
 X_test20 = scaler.transform(X_test20)
 X_validation20 = scaler.transform(X_validation20)
+X_smote20 = scaler.transform(X_smote20)
 ```
 
 ```python
@@ -513,6 +505,7 @@ For #2000-2006# the top 5 features are:
 3. Value Over Replacement Player
 4. Box Plus Minus
 5. Points
+
 and the bottom 5 features are: 
 1. Minutes Played
 2. Personal Fouls
@@ -527,9 +520,6 @@ Interestingly, we can see that many of the top 5 features and bottom 5 features 
 y_pred20 = myLog.predict(X_test20)
 y_pred13 = myLog2.predict(X_test13)
 y_pred06 = myLog3.predict(X_test06)
-```
-
-```python
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import recall_score
