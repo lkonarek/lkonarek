@@ -3,7 +3,7 @@ layout: post
 title: NBA & Data Science
 ---
 
-Introduction: 
+## Introduction: 
 
 As someone who is practically a life-long NBA fan, I have spent hours (perhaps even days) of my life staring at the stats of my favorite players. Obsessively memorizing stats so I could beat my friends in arguments about which player was better was my primary goal I must admit, but what started at what stats are the single best to follow, became so I could understand what all the stats meant. 
 
@@ -13,13 +13,13 @@ Due to the clear business case for the NBA, I sought to answer two main question
 - Could this on court value be used to determine if a player is over or under paid?
 Currently NBA teams have comprehensive analytics departments, but most of their analytics work is focused on the teams’ style of play as a supplemental to coaching, for example: taking more 3 pointers, driving to the net more in an attempt to draw fouls, and kick out passes to players in the corners to stretch the defense. However, NBA teams could do more to apply analytics to value for money.
 
-Data Acquisition:
+## Data Acquisition:
 
 Given that basketball stats are readily available online, I manually scraped all the stats from basketball-reference.com (using beautifulsoup w/ Python). My reasoning for doing this rather then downloading a dataset from Kaggle or another online depository was due to the fact that I wanted all the clean-up and dataframe schemas to be the same for each individual season I processed. 
 
 In a perfect world, it would be ideal to train models on the data for each individual season and evaluate against each other, but given that there are only about 300-400 players who play significant minutes per season (at least 8 minutes per game and 20 games played), there are too few rows for an effective model to be trained on. Therefore, multiple years were combined together into ‘eras’ for modelling: 2014-2020 (present era), 2007-2013, and 2000-2006.
 
-EDA & Summary of Cleaning:
+## EDA & Summary of Cleaning:
 While initially exploring the data, the preliminary goal was to isolate what distinguishes a good player from an elite player. All-star status was determined as the best way to do this. Once the most vital stats were isolated, on-court value vs contracts could be compared.
 The dataset required little traditional cleaning. Each row in the dataset corresponded to a player, therefore null values were not a significant issue, as the only nulls were for players who didn’t record any of a percent-based stat (3p%, FT%, etc.). Null values represented less then 15% in any column, and most columns had 0% null values.
 However, a number of non-conventional preprocessing decisions were made. First as already alluded to, players that do not play significant minutes and enough games were excluded in order to not skew the data and perhaps make the model more prone to overfitting. Also, by adding this threshold the vast majority of the nulls of the dataset were removed.
@@ -99,19 +99,11 @@ Ultimately the best way to deal with this seems to be to remove the secondary po
 
 ```python
 df14_20['Pos'] = df14_20['Pos'].astype(str)
-```
-
-
-```python
 df14_20['Pos'] = df14_20['Pos'].str.replace(r'-\w\w', '')
 df14_20['Pos'] = df14_20['Pos'].str.replace(r'-\w', '')
-```
-
-
-```python
 df14_20['Pos'].value_counts()
 ```
-
+Now these are the values of the positions remaining (for all the seasons from 2014-2020):
     SG    601
     PG    554
     PF    549
@@ -119,41 +111,19 @@ df14_20['Pos'].value_counts()
     SF    490
     Name: Pos, dtype: int64
 
+From here on, only the code altering the df14_20 will be shown, however assume all changes that are completed to the df14_20 dataframe are also completed with the other two dataframes: 
 
-
+Now the only remaining categorical variables are Position and Year. Let's use pd.get_dummies to encode them individually (drop_first = true because its not necessary to have a column for every option):
 ```python
-# Now let's do it for the other eras: 
-# 2007-2013: 
-df07_13['Pos'] = df07_13['Pos'].str.replace(r'-\w\w', '')
-df07_13['Pos'] = df07_13['Pos'].str.replace(r'-\w', '')
-
-# 2000-2006: 
-df00_06['Pos'] = df00_06['Pos'].str.replace(r'-\w\w', '')
-df00_06['Pos'] = df00_06['Pos'].str.replace(r'-\w', '')
-
-```
-
-
-```python
-# now the only remaining categorical variables are Position and Year. Let's use pd.get_dummies to encode them 
-# individually. drop_first = true because its not necessary to have a column for every option:
 df14_20 = pd.get_dummies(df14_20, drop_first=True)
-df07_13 = pd.get_dummies(df07_13, drop_first=True)
-df00_06 = pd.get_dummies(df00_06, drop_first=True)
 ```
 
-Modelling:
+## Supervised Modelling:
 
 ```python
 # Now let's state the X and y variables clearly in order for modelling: 
 y20 = df14_20['All-star']
 X20 = df14_20.drop(['All-star'], axis=1)
-
-y13 = df07_13['All-star']
-X13 = df07_13.drop(['All-star'], axis=1)
-
-X06 = df00_06.drop(['All-star'], axis=1)
-y06 = df00_06['All-star']
 ```
 
 First let's split up our dataset of the stats from 2014-2020 into a remainder and test set. The test set is set aside so there is no data leakage.
@@ -162,14 +132,6 @@ from sklearn.model_selection import train_test_split
 # Split up our data sets into remainder and test set:
 # For the 2014-2020 dataset: 
 X_remainder20, X_test20, y_remainder20, y_test20 = train_test_split(X20, y20, test_size=0.25, 
-                                                            random_state=1)
-
-# For the 2007-2013 dataset: 
-X_remainder13, X_test13, y_remainder13, y_test13 = train_test_split(X13, y13, test_size=0.25, 
-                                                            random_state=1)
-
-# For the 2000-2006 dataset:
-X_remainder06, X_test06, y_remainder06, y_test06 = train_test_split(X06, y06, test_size=0.25, 
                                                             random_state=1)
 ```
 
@@ -190,40 +152,11 @@ X_smote20 = pd.DataFrame(X_smote20, columns = X_remainder20.columns)
 unique, counts = np.unique(y_smote20, return_counts = True)
 print(np.asarray((unique, counts)).T)
 print()
-
-
-# and for 2007-2013: 
-smote2 = SMOTE(k_neighbors=2, n_jobs = -1, random_state=1)
-X_smote13, y_smote13 = smote2.fit_resample(X_remainder13,y_remainder13)
-
-# Save X_smote as a df in order to pull out feature names:
-X_smote13 = pd.DataFrame(X_smote13, columns = X13.columns)
-
-# Show how the smote works effectively as another way of oversampling:
-unique, counts = np.unique(y_smote13, return_counts = True)
-print(np.asarray((unique, counts)).T)
-print()
-
-# and for 2000-2006: 
-smote3 = SMOTE(k_neighbors=2, n_jobs = -1, random_state=1)
-X_smote06, y_smote06 = smote3.fit_resample(X_remainder06,y_remainder06)
-
-# Save X_smote as a df in order to pull out feature names:
-X_smote06 = pd.DataFrame(X_smote06, columns = X06.columns)
-
-# Show how the smote works effectively as another way of oversampling:
-unique, counts = np.unique(y_smote06, return_counts = True)
-print(np.asarray((unique, counts)).T)
 ```
 
     [[   0 1914]
      [   1 1914]]
-    
-    [[   0 1806]
-     [   1 1806]]
-    
-    [[   0 1742]
-     [   1 1742]]
+
 Now this shows how many data points we have to train and optimize our models on. It is worth repeating that the test set has remained unaltered by resampling methods, as the test set needs to remain unseen data. 
 
 
@@ -232,14 +165,6 @@ Then a second split needs to be made where we will seperate the remainder set (a
 # For the 2014-2020 dataset: 
 X_train20, X_validation20, y_train20, y_validation20 = train_test_split(X_smote20, y_smote20, test_size=0.2, 
                                                             random_state=1, stratify=y_smote20)
-
-# For the 2007 - 2013 dataset: 
-X_train13, X_validation13, y_train13, y_validation13 = train_test_split(X_smote13, y_smote13, test_size=0.2, 
-                                                            random_state=1, stratify=y_smote13)
-
-# For the 2000-2006 dataset: 
-X_train06, X_validation06, y_train06, y_validation06 = train_test_split(X_smote06, y_smote06, test_size=0.2, 
-                                                            random_state=1, stratify=y_smote06)
 ```
 
 Scale the data is important, however in order to pull out the coefficients of the best performing model X_train20 needs to remain as a dataframe with the column names present (normally scalers transform dataframes into a np array)
@@ -256,28 +181,6 @@ X_train20 = pd.DataFrame(scaled_features, index=X_train20.index, columns=X_train
 # transform X_test and X_validation as well:
 X_test20 = scaler.transform(X_test20)
 X_validation20 = scaler.transform(X_validation20)
-
-
-# 2nd Dataset: 
-scaler2 = StandardScaler()
-scaler2 = scaler2.fit(X_train13)
-
-scaled_features = scaler2.transform(X_train13.values)
-X_train13 = pd.DataFrame(scaled_features, index=X_train13.index, columns=X_train13.columns)
-
-X_test13 = scaler2.transform(X_test13)
-X_validation13 = scaler2.transform(X_validation13)
-
-
-# 3rd Dataset: 
-scaler3 = StandardScaler()
-scaler3 = scaler3.fit(X_train06)
-
-scaled_features = scaler3.transform(X_train06.values)
-X_train06 = pd.DataFrame(scaled_features, index=X_train06.index, columns=X_train06.columns)
-
-X_test06 = scaler2.transform(X_test06)
-X_validation06 = scaler3.transform(X_validation06)
 ```
 
 ```python
@@ -306,13 +209,9 @@ plt.show();
 
 ![first pic]({{ site.baseurl }}/images/image1.png)
 
-
+From the above, it makes sense to use a C value of 10^-1 for all three model. In addition, setting C values lower could help mitigate some overfitting issues, as higher C-values generally run a higher risk of overfitting on the train set. Therefore let's re-instantiate each of the three models with C=0.1:
 
 ```python
-# From the above, it makes sense to use a C value of 10^-1 for all three model. In addition, setting C values lower
-# could help mitigate some overfitting issues, as higher C-values generally run a higher risk of overfitting on the
-# train set. Therefore let's re-instantiate each of the three models with C=0.1:
-
 myLog = LogisticRegression(C=0.01, solver='lbfgs', n_jobs=-1, random_state=1)
 myLog.fit(X_smote20,y_smote20)
 print("2014-20: ")
@@ -577,7 +476,7 @@ Coef14_20
 </table>
 </div>
 
-The above lists out all the table variables after all preprocessing ordered by their correlation coefficients in the model, or in other words, how highly correlated a given variable is in predicting the outcome of the y-variable according to the model. The top 5 are as such:
+The above lists out all the table variables after all preprocessing ordered by their correlation coefficients in the model for #2014-2020#, or in other words, how highly correlated a given variable is in predicting the outcome of the y-variable according to the model. The top 5 are as such:
 1. Win Shares
 2. Defensive Winshares
 3. Assists 
@@ -593,520 +492,33 @@ And the 5 features most negatively correlated to making the all star team are:
 
 These are certainly interesting results, especially PER being the least correlated with all-star status, as this is an oft quoted stat. However it is also very prone to high output per minute statistics, so a lot of players who don't play many minutes per game (perhaps because they are horrific defenders) but score quite a few points while they are on the court, often have very high PER stats (Boban Marjanovic is an example).
 
-For the other two eras now:
-
-```python
-coefficients = pd.concat([pd.DataFrame(X_smote13.columns),pd.DataFrame(np.transpose(myLog2.coef_))], axis = 1)
-coefficients.columns=('Feature', 'Coefficients')
-Coef07_13 = coefficients.groupby('Coefficients').sum().sort_values('Coefficients', ascending=False)
-Coef07_13
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>Feature</th>
-    </tr>
-    <tr>
-      <th>Coefficients</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>0.515929</td>
-      <td>WS</td>
-    </tr>
-    <tr>
-      <td>0.387232</td>
-      <td>DWS</td>
-    </tr>
-    <tr>
-      <td>0.194692</td>
-      <td>TRB</td>
-    </tr>
-    <tr>
-      <td>0.190574</td>
-      <td>GS</td>
-    </tr>
-    <tr>
-      <td>0.171285</td>
-      <td>DRB</td>
-    </tr>
-    <tr>
-      <td>0.162878</td>
-      <td>VORP</td>
-    </tr>
-    <tr>
-      <td>0.160245</td>
-      <td>2PA</td>
-    </tr>
-    <tr>
-      <td>0.127182</td>
-      <td>PTS</td>
-    </tr>
-    <tr>
-      <td>0.122552</td>
-      <td>AST</td>
-    </tr>
-    <tr>
-      <td>0.120342</td>
-      <td>OWS</td>
-    </tr>
-    <tr>
-      <td>0.108189</td>
-      <td>TOV</td>
-    </tr>
-    <tr>
-      <td>0.101118</td>
-      <td>OBPM</td>
-    </tr>
-    <tr>
-      <td>0.095543</td>
-      <td>Age</td>
-    </tr>
-    <tr>
-      <td>0.087656</td>
-      <td>BPM</td>
-    </tr>
-    <tr>
-      <td>0.084609</td>
-      <td>FGA</td>
-    </tr>
-    <tr>
-      <td>0.081890</td>
-      <td>FTA</td>
-    </tr>
-    <tr>
-      <td>0.067940</td>
-      <td>2P</td>
-    </tr>
-    <tr>
-      <td>0.056882</td>
-      <td>FG</td>
-    </tr>
-    <tr>
-      <td>0.051718</td>
-      <td>FT</td>
-    </tr>
-    <tr>
-      <td>0.050971</td>
-      <td>Pos_SG</td>
-    </tr>
-    <tr>
-      <td>0.043287</td>
-      <td>ORB</td>
-    </tr>
-    <tr>
-      <td>0.043223</td>
-      <td>BLK%</td>
-    </tr>
-    <tr>
-      <td>0.031733</td>
-      <td>ORB%</td>
-    </tr>
-    <tr>
-      <td>0.031594</td>
-      <td>AST%</td>
-    </tr>
-    <tr>
-      <td>0.027682</td>
-      <td>BLK</td>
-    </tr>
-    <tr>
-      <td>0.020748</td>
-      <td>TOV%</td>
-    </tr>
-    <tr>
-      <td>0.005164</td>
-      <td>TRB%</td>
-    </tr>
-    <tr>
-      <td>0.003707</td>
-      <td>3P%</td>
-    </tr>
-    <tr>
-      <td>0.000975</td>
-      <td>WS/48</td>
-    </tr>
-    <tr>
-      <td>-0.003910</td>
-      <td>USG%</td>
-    </tr>
-    <tr>
-      <td>-0.003984</td>
-      <td>FTr</td>
-    </tr>
-    <tr>
-      <td>-0.011919</td>
-      <td>3P</td>
-    </tr>
-    <tr>
-      <td>-0.012563</td>
-      <td>3PAr</td>
-    </tr>
-    <tr>
-      <td>-0.017018</td>
-      <td>DBPM</td>
-    </tr>
-    <tr>
-      <td>-0.019462</td>
-      <td>FT%</td>
-    </tr>
-    <tr>
-      <td>-0.020061</td>
-      <td>FG%</td>
-    </tr>
-    <tr>
-      <td>-0.021823</td>
-      <td>eFG%</td>
-    </tr>
-    <tr>
-      <td>-0.023454</td>
-      <td>TS%</td>
-    </tr>
-    <tr>
-      <td>-0.023760</td>
-      <td>2P%</td>
-    </tr>
-    <tr>
-      <td>-0.030855</td>
-      <td>Pos_PG</td>
-    </tr>
-    <tr>
-      <td>-0.074099</td>
-      <td>Pos_SF</td>
-    </tr>
-    <tr>
-      <td>-0.083176</td>
-      <td>STL</td>
-    </tr>
-    <tr>
-      <td>-0.094785</td>
-      <td>3PA</td>
-    </tr>
-    <tr>
-      <td>-0.119970</td>
-      <td>Pos_PF</td>
-    </tr>
-    <tr>
-      <td>-0.131116</td>
-      <td>DRB%</td>
-    </tr>
-    <tr>
-      <td>-0.142185</td>
-      <td>PER</td>
-    </tr>
-    <tr>
-      <td>-0.155014</td>
-      <td>MP</td>
-    </tr>
-    <tr>
-      <td>-0.156838</td>
-      <td>STL%</td>
-    </tr>
-    <tr>
-      <td>-0.196345</td>
-      <td>PF</td>
-    </tr>
-    <tr>
-      <td>-0.284399</td>
-      <td>G</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-For 2007-2013 the top 5 features are: 
-- Win shares 
-- Defensive Win shares
-- Total Rebounds
-- Games Started 
-- Defensive Rebounds
+For #2007-2013# the top 5 features are: 
+1. Win shares 
+2. Defensive Win shares
+3. Total Rebounds
+4. Games Started 
+5. Defensive Rebounds
 
 and the bottom 5 features are: 
-- Games
-- Personal Fouls
-- Steal %
-- Minutes Played
-- Player Efficiency Rating 
+1. Games
+2. Personal Fouls
+3. Steal %
+4. Minutes Played
+5. Player Efficiency Rating 
 
 
-```python
-coefficients = pd.concat([pd.DataFrame(X_smote06.columns),pd.DataFrame(np.transpose(myLog3.coef_))], axis = 1)
-coefficients.columns=('Feature', 'Coefficients')
-Coef00_06 = coefficients.groupby('Coefficients').sum().sort_values('Coefficients', ascending=False)
-Coef00_06
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>Feature</th>
-    </tr>
-    <tr>
-      <th>Coefficients</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>0.445622</td>
-      <td>DWS</td>
-    </tr>
-    <tr>
-      <td>0.390750</td>
-      <td>WS</td>
-    </tr>
-    <tr>
-      <td>0.267192</td>
-      <td>VORP</td>
-    </tr>
-    <tr>
-      <td>0.228585</td>
-      <td>BPM</td>
-    </tr>
-    <tr>
-      <td>0.212528</td>
-      <td>PTS</td>
-    </tr>
-    <tr>
-      <td>0.210850</td>
-      <td>2PA</td>
-    </tr>
-    <tr>
-      <td>0.203956</td>
-      <td>FGA</td>
-    </tr>
-    <tr>
-      <td>0.203855</td>
-      <td>TRB</td>
-    </tr>
-    <tr>
-      <td>0.173782</td>
-      <td>OBPM</td>
-    </tr>
-    <tr>
-      <td>0.173006</td>
-      <td>DRB</td>
-    </tr>
-    <tr>
-      <td>0.142083</td>
-      <td>BLK%</td>
-    </tr>
-    <tr>
-      <td>0.126156</td>
-      <td>TOV</td>
-    </tr>
-    <tr>
-      <td>0.125747</td>
-      <td>FG</td>
-    </tr>
-    <tr>
-      <td>0.123623</td>
-      <td>2P</td>
-    </tr>
-    <tr>
-      <td>0.113611</td>
-      <td>BLK</td>
-    </tr>
-    <tr>
-      <td>0.100482</td>
-      <td>GS</td>
-    </tr>
-    <tr>
-      <td>0.094746</td>
-      <td>AST</td>
-    </tr>
-    <tr>
-      <td>0.083291</td>
-      <td>TOV%</td>
-    </tr>
-    <tr>
-      <td>0.062105</td>
-      <td>DBPM</td>
-    </tr>
-    <tr>
-      <td>0.059130</td>
-      <td>Age</td>
-    </tr>
-    <tr>
-      <td>0.058936</td>
-      <td>FTA</td>
-    </tr>
-    <tr>
-      <td>0.050735</td>
-      <td>ORB%</td>
-    </tr>
-    <tr>
-      <td>0.032488</td>
-      <td>ORB</td>
-    </tr>
-    <tr>
-      <td>0.011965</td>
-      <td>TRB%</td>
-    </tr>
-    <tr>
-      <td>0.007508</td>
-      <td>FTr</td>
-    </tr>
-    <tr>
-      <td>0.007239</td>
-      <td>3PA</td>
-    </tr>
-    <tr>
-      <td>0.006042</td>
-      <td>3P</td>
-    </tr>
-    <tr>
-      <td>-0.000157</td>
-      <td>WS/48</td>
-    </tr>
-    <tr>
-      <td>-0.006727</td>
-      <td>3P%</td>
-    </tr>
-    <tr>
-      <td>-0.007577</td>
-      <td>Pos_SF</td>
-    </tr>
-    <tr>
-      <td>-0.012901</td>
-      <td>FG%</td>
-    </tr>
-    <tr>
-      <td>-0.016066</td>
-      <td>2P%</td>
-    </tr>
-    <tr>
-      <td>-0.016598</td>
-      <td>eFG%</td>
-    </tr>
-    <tr>
-      <td>-0.020222</td>
-      <td>TS%</td>
-    </tr>
-    <tr>
-      <td>-0.023414</td>
-      <td>3PAr</td>
-    </tr>
-    <tr>
-      <td>-0.026249</td>
-      <td>AST%</td>
-    </tr>
-    <tr>
-      <td>-0.037161</td>
-      <td>FT</td>
-    </tr>
-    <tr>
-      <td>-0.040146</td>
-      <td>Pos_PG</td>
-    </tr>
-    <tr>
-      <td>-0.048597</td>
-      <td>OWS</td>
-    </tr>
-    <tr>
-      <td>-0.050165</td>
-      <td>FT%</td>
-    </tr>
-    <tr>
-      <td>-0.062571</td>
-      <td>Pos_SG</td>
-    </tr>
-    <tr>
-      <td>-0.100040</td>
-      <td>STL</td>
-    </tr>
-    <tr>
-      <td>-0.102321</td>
-      <td>Pos_PF</td>
-    </tr>
-    <tr>
-      <td>-0.118643</td>
-      <td>DRB%</td>
-    </tr>
-    <tr>
-      <td>-0.126606</td>
-      <td>USG%</td>
-    </tr>
-    <tr>
-      <td>-0.148116</td>
-      <td>G</td>
-    </tr>
-    <tr>
-      <td>-0.187055</td>
-      <td>PER</td>
-    </tr>
-    <tr>
-      <td>-0.208667</td>
-      <td>STL%</td>
-    </tr>
-    <tr>
-      <td>-0.217570</td>
-      <td>PF</td>
-    </tr>
-    <tr>
-      <td>-0.223534</td>
-      <td>MP</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-For 2000-2006 the top 5 features are:
-- Defensive Win Shares
-- Win Shares
-- Value Over Replacement Player
-- Box Plus Minus
-- Points
-
-Bottom 10 features in terms of importance against making the AS game: 
-- Minutes Played
-- Personal Fouls
-- Steal %
-- Player Efficiency Rating
-- Games
+For #2000-2006# the top 5 features are:
+1. Defensive Win Shares
+2. Win Shares
+3. Value Over Replacement Player
+4. Box Plus Minus
+5. Points
+and the bottom 5 features are: 
+1. Minutes Played
+2. Personal Fouls
+3. Steal %
+4. Player Efficiency Rating
+5. Games
 
 Interestingly, we can see that many of the top 5 features and bottom 5 features are quite consistent across the different eras. Although there are differences noticed over time, this shows that the best ways of evaluating players has not really changed much over the past 20 years. Also stats that are often quoted as being good metrics for evaluating players, Player Efficiency Rating for example, is consistently one of the worst predictors for determining if a player is elite.
 
@@ -1919,7 +1331,7 @@ df2_km_u.groupby('kmeans_sol').mean().transpose()
 
 It is important to check for normality, as many clusters will be misleading if the data is non-normal (one reason for the log transform earlier was because of this). Ultimately I created QQ Plots aswell as a Mann-Whitney U Test, and found that the data was quite normal but that there were statistically significant differences found in the groups for all variables both in the Kmeans and Hclust section, so this puts some of the results into a bit of question, however is also expected given the very low adjusted rand score earlier. 
 
-Final Notes and Findings of Modelling: 
+## Final Notes and Findings of Modelling: 
 Supervised Modelling: 
 - In this example, logistic regression made the most sense, given that it had the best (or close to the best) scores and has the extra intrepretability of being able to easily find the feature coefficients and intepret them. In addition, incorporating domain specific knowledge the results of the most important categories make the most sense with using a Logistic model.
 - This classification problem in general seems relatively easy for a model to determine, which is an interesting finding. However despite the very strong accuracy figures, precision is extremely low, therefore the notion that there are many 'snubs' (players who deserve to be all-stars but don't make it) each year is supported by the models. 
@@ -1965,6 +1377,6 @@ Cluster 5: “Bench Player”:
 ![second pic]({{ site.baseurl }}/images/image12.png)
 
 
-Conclusion and Business Cases: 
+##Conclusion and Business Cases: 
 The primary business application in this case is that the clustering model can be used to analyze how much to pay for certain players. Evaluating a player against his most similar player archetype of the five above, would help determine which free agents are overpriced and which are potential bargains.
 Not all the goals I hoped to achieve in this analysis could be completed due to the time restrictions. In the future, I would like to look into anciliary stats like jersey sales and social media followers in order to assess the additional value a player brings to a franchise (and likely increase the relative value of the superstar cluster). I would also like to perform clustering analysis on earlier “eras” to see if similar player types emerge.
