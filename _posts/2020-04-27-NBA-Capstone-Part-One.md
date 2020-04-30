@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Data Science & the NBA: Comprehensive Analysis 
+title: Data Science & the NBA, Comprehensive Analysis 
 ---
 
 ## Introduction: 

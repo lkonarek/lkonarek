@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Data Science & the NBA: A summary: 
+title: Data Science & the NBA, A summary
 ---
 By: Logan Konarek
 
