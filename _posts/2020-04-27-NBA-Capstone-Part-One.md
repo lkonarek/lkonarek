@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Data Science in the last 20 years of the NBA: 
+title: Data Science & the NBA: Comprehensive Analysis 
 ---
 
 ## Introduction: 
