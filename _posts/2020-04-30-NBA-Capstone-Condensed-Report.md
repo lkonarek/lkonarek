@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Data Science in the last 20 years of the NBA: A summary: 
+---
 
 ## Introduction and Business Questions:
 
