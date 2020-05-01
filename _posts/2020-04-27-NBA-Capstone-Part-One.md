@@ -2,6 +2,7 @@
 layout: post
 title: Data Science & the NBA, Comprehensive Analysis 
 ---
+Please be advised this is the longer version of the primary blog post titled: "Data Science & the NBA". This post will cover many of the same points as the other post, however will go more into depth into methodology, rationale, possible explanations for the data. If anything is not clear in this post, or if you'd like to ask any questions, please feel free to email me. :).
 
 ## Introduction: 
 

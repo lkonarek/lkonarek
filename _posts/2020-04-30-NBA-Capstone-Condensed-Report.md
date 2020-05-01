@@ -2,7 +2,6 @@
 layout: post
 title: Data Science & the NBA, A summary
 ---
-By: Logan Konarek
 
 ## Introduction and Business Questions:
 
