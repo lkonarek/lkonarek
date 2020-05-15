@@ -1,7 +1,9 @@
 ---
 layout: post
-title: Data Science & the NBA, A summary
+title: Data Science & the NBA
 ---
+
+Please be advised this is the Summary version of the blog post titled: “Data Science & the NBA – Comprehensive Version”. The more detailed post includes more information on methodology, rationale, and possible explanations for the data. If anything is not clear in these posts, or if you’d like to ask any questions, please feel free to email me. :).
 
 ## Introduction and Business Questions:
 
@@ -36,7 +38,7 @@ Once the most meaningful statistics were identified, they were aggregated and co
 
 ### Insights from Supervised Learning Modelling:
 Since the main goal of the supervised modelling portion was to identify the most important features for each ‘era’, the above visual is an example of the main insight gathered. As you can see from the visual above, for the most recent era the five most important features for determining if a player makes the all-star game were: Win Shares, Defensive Win Shares, Assists, Defensive Rebounds, and Value Over Replacement Player.
-Interestingly, although certain stats like 3 pointers were shown to have gone up over time, the stats for predicting the All-star status of a player were largely consistent across the three different eras. This shows us that although the game of basketball stylistically has changed dramatically, the best ways to assess on-court value has not.
+Interestingly, although certain stats like 3 pointers were shown to have gone up over time, the stats for predicting the All-star status of a player were largely consistent across the three different eras. This shows us that although the game of basketball stylistically has changed dramatically, the best ways to assess on-court value, for the most part, have not.
  
 Clustering:
 Based off the most important statistics identified, the clustering analysis was performed. Ultimately it resulted in five different clusters, each of which can be identified as a common player type. The following lists include a brief profile of each cluster, the statistical averages (the most quoted statistics) and the average contract in USD:

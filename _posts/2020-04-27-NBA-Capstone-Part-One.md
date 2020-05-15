@@ -1,14 +1,14 @@
 ---
 layout: post
-title: Data Science & the NBA, Comprehensive Analysis 
+title: Data Science & the NBA - Comprehensive Analysis 
 ---
 Please be advised this is the longer version of the primary blog post titled: "Data Science & the NBA". This post will cover many of the same points as the other post, however will go more into depth into methodology, rationale, possible explanations for the data. If anything is not clear in this post, or if you'd like to ask any questions, please feel free to email me. :).
 
 ## Introduction: 
 
-As someone who is practically a life-long NBA fan, I have spent hours (perhaps even days) of my life staring at the stats of my favorite players. Obsessively memorizing stats so I could beat my friends in arguments about which player was better was my primary goal I must admit, but what started at what stats are the single best to follow, became so I could understand what all the stats meant. 
+As someone who is practically a life-long NBA fan, I have spent hours (perhaps even days) of my life staring at the stats of my favorite players. Obsessively memorizing stats so I could beat my friends in arguments about which player was better was my primary goal I must admit, but what started as what stats are the single best to follow, became analysis so I could understand what all the stats meant. 
 
-Basketball may be the single sport with the most stats (other then perhaps baseball), and anyone who has ever gone to a specific players profile knows that they keep track of an amazing amount of things, everything from scored points to tipped passes. And it is understandable why this is the case, NBA teams pay tens of millions of dollars to sign players on multi-year contracts. It is vital to understand not only on which metrics to evaluate players, but also how much to pay. The tendency is to evaluate players against their peers who play the same position, so it is certainly possible that certain player types or positions are overpaid relative to others.
+Basketball may be the single sport with the most stats (other then perhaps baseball), and anyone who has ever gone to a specific player's profile knows that the NBA tracks an amazing amount of detail, everything from scored points to tipped passes. And it is understandable why this is the case. NBA teams pay tens of millions of dollars to sign players on multi-year contracts. It is vital to understand not only on which metrics to evaluate players, but also how much to pay. The tendency is to evaluate players against their peers who play the same position, so it is certainly possible that certain player types or positions are overpaid relative to others.
 Due to the clear business case for the NBA, I sought to answer two main questions:
 - What are the best ways of evaluating a basketball player’s on court value?
 - Could this on court value be used to determine if a player is over or under paid?
@@ -47,7 +47,7 @@ print(df00_06['All-star'].value_counts())
 
 As we can see the classification problem is very biased (0 means non all-star and 1 means all-star), which makes sense given the number of players that make the all-star team vs the number of players who do not.
 
-Now it is important that we define the threshold for a player essentially making into the dataset. Given that some players get called up from the NBA development league (the G-league) throughout the season as team need requires. Therefore roughly a quarter of the season (20 games of the total 82 games) and 8 minutes per game (1/6th of a total individual game). As you can also see, the same threshold was chosen for each season: 
+Now it is important that we define the threshold for a player essentially making into the dataset, given that some players get called up from the NBA development league (the G-league) throughout the season as team need requires. I defined the 'importance threshold', essentially which players played enough minutes and enough games to be deemed worthy of being included in the analysis: roughly a quarter of the season (20 games of the total 82 games) and 8 minutes per game (1/6th of a total individual game). As you can also see, the same threshold was chosen for each season: 
 ```python
 df14_20 = df14_20[df14_20['G']>20]
 df14_20 = df14_20[df14_20['MP']>8.0]
@@ -59,7 +59,7 @@ df00_06 = df00_06[df00_06['G']>20]
 df00_06 = df00_06[df00_06['MP']>8.0]
 ```
 
-At this point, now that we have actually created the above thresholds, the only columns that have any null values is 3% and it is only for the players who have recorded no 3 pointers (fairly common for players who are centres and don't shoot long range shots at all):
+At this point, now that we have actually created the above thresholds, the only columns that have any null values is 3PT% (Percentage of Made Three Pointer shots) and it is only for the players who have recorded no 3 pointers (fairly common for players who are centres and don't shoot long range shots at all):
 
 ```python
 df14_20['3P%'] = df14_20['3P%'].fillna(0)
@@ -67,7 +67,7 @@ df07_13['3P%'] = df07_13['3P%'].fillna(0)
 df00_06['3P%'] = df00_06['3P%'].fillna(0)
 ```
 
-The Last cleaning decision that needs to be made is regarding positions, at this point the data is saved as such 
+The Last cleaning decision that needs to be made is regarding positions, at this point the data is saved as such: 
 ```python
 df14_20['Pos'].value_counts()
 ```
@@ -87,7 +87,7 @@ df14_20['Pos'].value_counts()
     SF-PF      2
     SG-PF      1
 
-Ultimately the best way to deal with this seems to be to remove the secondary position altogether, as it is inconsistent whether a player has more then one listed position. For the purposes of the modelling in this exercise, let's try to isolate the 5 positions, and assume each player mostly plays their primary position.  
+Ultimately the best way to deal with this problem above seems to be to remove the secondary position altogether, as it is inconsistent whether a player has more then one listed position. For the purposes of the modelling in this exercise, let's try to isolate the 5 positions, and assume each player mostly plays their primary position.  
 
 
 ```python
@@ -154,7 +154,7 @@ print()
 Now this shows how many data points we have to train and optimize our models on. It is worth repeating that the test set has remained unaltered by resampling methods, as the test set needs to remain unseen data. 
 
 
-Then a second split needs to be made where we will seperate the remainder set (after smote) into the train and validation sets which will actually be used to tune the primary models. 
+Then a second split needs to be made where we will separate the remainder set (after smote) into the train and validation sets which will actually be used to tune the primary models. 
 ```python
 X_train20, X_validation20, y_train20, y_validation20 = train_test_split(X_smote20, y_smote20, test_size=0.2, 
                                                             random_state=1, stratify=y_smote20)
@@ -202,7 +202,7 @@ plt.show();
 
 ![first pic]({{ site.baseurl }}/images/image1.png)
 
-From the above, it makes sense to use a C value of 10^-1 for all three model. In addition, setting C values lower could help mitigate some overfitting issues, as higher C-values generally run a higher risk of overfitting on the train set. Therefore let's re-instantiate each of the three models with C=0.1:
+From the above, it makes sense to use a C value of 10^-1 for all three models. In addition, setting C values lower could help mitigate some overfitting issues, as higher C-values generally run a higher risk of overfitting on the train set. Therefore let's re-instantiate each of the three models with C=0.1:
 
 ```python
 myLog = LogisticRegression(C=0.01, solver='lbfgs', n_jobs=-1, random_state=1)
@@ -471,13 +471,13 @@ Coef14_20
 
 The above lists out all the table variables after all preprocessing ordered by their correlation coefficients in the model for #2014-2020#, or in other words, how highly correlated a given variable is in predicting the outcome of the y-variable according to the model. The top 5 are as such:
 1. Win Shares
-2. Defensive Winshares
+2. Defensive Win Shares
 3. Assists 
 4. Defensive Rebounds
 5. Value Over Replacement Player
 
 And the 5 features most negatively correlated to making the all star team are: 
-1. PER
+1. Player Efficiency Rating (PER)
 2. Minutes Played
 3. ORB%
 4. Personal Fouls
@@ -487,7 +487,7 @@ These are certainly interesting results, especially PER being the least correlat
 
 For #2007-2013# the top 5 features are: 
 1. Win shares 
-2. Defensive Win shares
+2. Defensive Win Shares
 3. Total Rebounds
 4. Games Started 
 5. Defensive Rebounds
@@ -550,9 +550,10 @@ Confusion Matrix for 2020:
 |True All-star|1 |44 | 45 |
 |Predicted Totals| 595 | 90 | 685 |
 
-From the above, we can conclude that all three of the Logistic Models for the three eras seem to be a bit too prone to predicting all star. Although the true totals are 640 non allstars and 45 true all-stars (for the 2014-2020 model), the model predicted 45 more all-stars then there actually were in the dataset. This isn't actually that surprising, given that every year in the NBA there are many players that are seen as "all-star snubs" (players that media and fans agree should have made the team but don't). This lack of precision is partially due to restrictions on positions in an increasingly position-less NBA (certain number of each position allowed in the NBA but many players don't really fit into traditional position roles), meaning certain players 'deserved' to make the team but didn't. The lack of precision is also due to the nature of upsampling. Since we trained our data on a model where there was an equal number of both classes, the model was not very good at being precise and only picking the best of the best as all-stars. 
+From the above, we can conclude that all three of the Logistic Models for the three eras seem to be a bit too prone to predicting all star. Although the true totals are 640 non allstars and 45 true all-stars (for the 2014-2020 model), the model predicted 45 more all-stars then there actually were in the dataset. 
+This isn't actually that surprising, given that every year in the NBA there are many players that are seen as "all-star snubs" (players that media and fans agree should have made the team but don't). This lack of precision is partially due to restrictions on positions in an increasingly position-less NBA (certain number of each position allowed in the NBA but many players don't really fit into traditional position roles), meaning certain players 'deserved' to make the team but didn't. The lack of precision is also due to the nature of upsampling. Since we trained our data on a model where there was an equal number of both classes, the model was not very good at being precise and only picking the best of the best as all-stars. 
 
-However despite the extremely low precision figures (as evidenced below), given that the main purpose of these models are to identify the statistics most important for predicting all star status (the feature coefficients of the model), the model serves its' purpose well. 
+However despite the extremely low precision figures (as evidenced below), given that the main purpose of these models are to identify the statistics most important for predicting all star status (the feature coefficients of the model), the model serves its purpose well. 
 
 
 ```python
@@ -628,7 +629,7 @@ And 2000-2006:
 
 The ROC curve above and the three corresponding AUC scores certainly show evidence of overfitting, however the extremely low false positive rate (data points the model classified as all-stars who were in fact not all-stars) is an encouraging sign that the models are effective for their purpose.
 
-Although the best performing Logistic Model was used as the final best predictive model due to its interpretability and accuracy, there were many other models I considered including other techniques like Principal component analysis, feature engineering, ensembling, building pipelines to hyperoptimize model parameters, as well as try out other simple modelling techniques like decision trees, k-nearest neighbors and SVM. For the purposes of this blog post, these other methods will be left out, but I will make a longer form blog post that includes all the other code and things I tried anyone wants to take a more indepth look. 
+Although the best performing Logistic Model was used as the final best predictive model due to its interpretability and accuracy, there were many other models and techniques I considered using Principal component analysis, feature engineering, ensembling, building pipelines to hyperoptimize model parameters, as well as trying out other simple modelling techniques such as decision trees, k-nearest neighbors and SVM. For the purposes of this blog post, these other methods will be left out.  
 
 
 Interestingly, by adding the three main models I tried: Decision Trees, Logistic Regression and K-nearest neighbors, the model performed only marginally better then the logistic regression model alone:
@@ -678,8 +679,8 @@ df = df[df['MP']>19.0]
 ```
 
 So far, we have identified a number of different features that were consistently highly involved in success in all of the eras (but especially the recent era):
-- Defensive Winshares
-- Winshares
+- Defensive Win Shares
+- Win Shares
 - Assists
 - Defensive Rebounds
 - VORP
@@ -696,7 +697,7 @@ So far, we have identified a number of different features that were consistently
 - Usage Rate
 - Steals
 
-Let's also include other important stats for basketball assessment (the reason for including these is that they are three of the most often quoted advanced stats):
+Let's also include other important stats for basketball assessment (the reason for including these is that they are four of the most often quoted advanced stats):
 - Free Throw Rate 
 - PER 
 - TS%
@@ -1053,7 +1054,7 @@ adjusted_rand_score(k_means_model.labels_,hclust_model.labels_)
 
 
 
-Not great Adjusted Rand index score, however this can be expected given how hclust and kmeans are calculated in very different ways. Simply put, kmeans works by attempting to find possible centre points for each cluster, and then puts each data point into whichever cluster has the nearest centre point. The hcluster model which uses agglomerative clustering looks at the variance of the data points and makes clusters based of miminising the variance within clusters. 
+Not agreat Adjusted Rand index score, however this can be expected given how hclust and kmeans are calculated in very different ways. Simply put, kmeans works by attempting to find possible centre points for each cluster, and then puts each data point into whichever cluster has the nearest centre point. The hcluster model which uses agglomerative clustering looks at the variance of the data points and makes clusters based on miminising the variance within clusters. 
 
 Now let's combine the two methods together into one dataframe so we can visualize the clusters that the two methods identified: 
 
@@ -1088,7 +1089,7 @@ Blocks:
 2019-2020 Contract Values per cluster (The most important):
 ![second pic]({{ site.baseurl }}/images/image7.png)
 
-So which model should we 'trust', Hclust or KMeans? Hard to say definitively. However for the contract value plots above, it seems that both methods generation roughly the same clusters (this is encouraging). 
+So which model should we 'trust', Hclust or KMeans? Hard to say definitively. However for the contract value plots above, it seems that both methods generate roughly the same clusters (this is encouraging). 
 
 Ultimately this is where some other logic and/or domain knowledge can be applied. Intuitively speaking given that KMeans classifies points and their clusters on the distance between similar data points (more specifically the distance to the closest centre of the cluster), it is fair to say that this may be a better clustering tool for fitting the data then HClust.
 
@@ -1320,20 +1321,20 @@ df2_km_u.groupby('kmeans_sol').mean().transpose()
 </div>
 
 
-It is important to check for normality, as many clusters will be misleading if the data is non-normal (one reason for the log transform earlier was because of this). Ultimately I created QQ Plots aswell as a Mann-Whitney U Test, and found that the data was quite normal but that there were statistically significant differences found in the groups for all variables both in the Kmeans and Hclust section, so this puts some of the results into a bit of question, however is also expected given the very low adjusted rand score earlier. 
+It is important to check for normality, as many clusters will be misleading if the data is non-normal (one reason for the log transform earlier was because of this). Ultimately I created QQ Plots as well as a Mann-Whitney U Test, and found that the data was quite normal but that there were statistically significant differences found in the groups for all variables both in the Kmeans and Hclust section. This puts some of the results into a bit of question, however it is also expected given the very low adjusted rand score earlier. 
 
 ## Final Notes and Findings of Modelling: 
 Supervised Modelling: 
-- In this example, logistic regression made the most sense, given that it had the best (or close to the best) scores and has the extra intrepretability of being able to easily find the feature coefficients and intepret them. In addition, incorporating domain specific knowledge the results of the most important categories make the most sense with using a Logistic model.
+- In this example, logistic regression made the most sense, given that it had the best (or close to the best) scores and has the extra intrepretability of being able to easily find the feature coefficients and interpret them. In addition, after incorporating domain specific knowledge, the results of the most important categories make the most sense when using a Logistic model.
 - This classification problem in general seems relatively easy for a model to determine, which is an interesting finding. However despite the very strong accuracy figures, precision is extremely low, therefore the notion that there are many 'snubs' (players who deserve to be all-stars but don't make it) each year is supported by the models. 
 - It is worth reiterating again all the logistic models had high recall, which means these models are casting too wide of a net, in other words the models classified the player as an all-star more then the true number of all-stars in the data set. 
-- It is worth summarazing again the subjective assumptions/decisions made in the first part of this document including: 
+- It is worth summarizing again the subjective assumptions/decisions made in the first part of this document including: 
     - the threshold cutoffs (at least 20 games played and 8 minutes played), 
     - the decision to drop the team column entirely after removing the individual team rows for players who were traded in the season.
     - the decision to classify all players as their primary or first-listed position only.
 - Due to most of the models above showing signs of overfitting, decisions were often made to be more conservative to mitigate the affect of this problem (ex: smaller C values for logistic regression, etc.).
-- Many of the stats found to be most impactful in the present era were also found to be the most impactful in previous eras as well. This is a surprising finding; although I understood that stats like WS/DWS were very important I was not expecting them to be #1/#2 respectively for each year. DWS makes some sense as a very impactful statistic given that very few bball stats account for defense (blocks and steals are two of the most quoted) and defense accounts for half of all basketball, however the consistency of it being in the top 2 for each era was a very interesting finding nontheless.
-- Other more complicated models/ensemble methods were assessed as possible options, however did not perform better then a Logistic Model and involved a lot of time spent on hyperoptimizing parameters. Grid Searches as well could be used in order to get the exact best parameters, however given that the goal of this exercise was primarily to find the most important features and isolate them for the clustering portion, grid searches didn't really fit into that (given that it would be harder to interpet the feature weights/coefficients)
+- Many of the stats found to be most impactful in the present era were also found to be the most impactful in previous eras as well. This is a surprising finding; although I understood that stats like WS/DWS were very important I was not expecting them to be #1/#2 respectively for each year. DWS makes some sense as a very impactful statistic given that very few basketball stats account for defense (blocks and steals are two of the most quoted) and defense accounts for half of all basketball, however the consistency of it being in the top 2 for each era was a very interesting finding nonetheless.
+- Other more complicated models/ensemble methods were assessed as possible options, however did not perform better then a Logistic Model and involved a lot of time spent on hyperoptimizing parameters. Grid Searches as well could be used in order to get the exact best parameters, however given that the goal of this exercise was primarily to find the most important features and isolate them for the clustering portion, grid searches didn't really fit into that (given that it would be harder to interpret the feature weights/coefficients)
 
 Unsupervised Modelling: 
 - The assumptions used (more then 20 games played and more then 19 minutes per game) are fairly high thresholds, which leaves ~300 rows. Clustering would be more accurate if more rows were included, however the risk of including players who don't play enough was seen as a higher risk for inaccuracy.
