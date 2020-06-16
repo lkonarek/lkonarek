@@ -15,5 +15,3 @@ Python, R, SQL, Bash, AWS, Hadoop, Spark, Project Management, GitHub, Tableau, F
 ### Contact me
 
 [logan konarek](mailto:logankonarek@gmail.com)
-
-### Thanks! 
