@@ -3,13 +3,13 @@ layout: post
 title: Suicide Rates since 1985 
 ---
 
-Thursday September 10th marked International Suicide Prevention Day, a day where awareness is brought to one of the most prevalent and preventable causes of death, suicide. Our society has a strange relationship with suicide. We all know that it is a problem, however we rarely talk about it or acknowledge as if that may give people ideas. I believe by investigating more of what causes suicides and why people ultimately feel the need to take their own life we will prevent these tragedies far more effectively. Although this analysis will not even begin to answer why people commit suicide I aim to identify: 
-- if suicides are going up year over year
-- the age ranges that typically commit suicide at higher rates
-- the genders most likely to commit suicide 
-- if richer countries commit suicide at lower rates
+Thursday September 10th marked World Suicide Prevention Day, a day where awareness is brought to one of the most prevalent and preventable causes of death: suicide. Our society has a strange relationship with suicide. We all know that it is a problem, however we rarely talk about it or acknowledge it as if that may give people ideas. I believe by investigating more of what causes suicides and why people ultimately feel the need to take their own life we will prevent these tragedies far more effectively. Although this analysis will not even begin to answer why people commit suicide I aim to identify: 
+- If suicides are going up year over year
+- The genders most likely to commit suicide 
+- The age ranges that typically commit suicide at higher rates 
+- If richer countries commit suicide at lower rates
 
-
+Before we answer any of the questions above, we must first import the necessary packages and our dataset:
 
 ```python
 import numpy as np
@@ -171,7 +171,15 @@ df.info()
     memory usage: 2.5+ MB
 
 
-Therefore the main data that the dataset includes is the Country name, the year of each, the sex and different age profiles. The population, and some of the numerical and financial figures of each country. From looking at these table names we can see for one that the column: 'country-year' is redundant as that information is already included in the two seperate columns of country and year. 
+Therefore the main data that the dataset includes is:
+- The Country name 
+- The year 
+- The sex/gender 
+- Different age profiles 
+- The population. 
+- And lastly, some of the numerical and financial figures of each country. 
+
+From looking at these table names we can see for one that the column: 'country-year' is redundant as that information is already included in the two seperate columns of country and year. 
 
 
 ```python
@@ -225,11 +233,10 @@ df['country'].value_counts()
     Name: country, Length: 101, dtype: int64
 
 
-
+Interestingly, there are no null values present at all other then HDI per year (Human Development Index), therefore this dataset is largely already cleaned:
 
 ```python
-# Interestingly, there are no null values present at all other then HDI per year (Human Development Index), therefore
-# this dataset is largely already cleaned:
+
 percent_missing = df.isnull().sum() * 100 / len(df)
 null_df = pd.DataFrame({'column_name': df.columns,
                                  'percent_missing': percent_missing})
@@ -273,14 +280,14 @@ null_df[null_df['percent_missing'].gt(0)]
 
 
 
-However, judging from the fact that this column (HDI for year) is ~70% null, it doesnt provide a lot of value as it currently is, however since it is a continuous value, we can use the mean to fill in. 
+However, judging from the fact that this column (HDI for year) is ~70% null, it doesnt provide a lot of value as it currently is. We can choose to get rid of the feature entirely, which would make some sense given that it is almost entirely null, however since it is a continuous value, we can use the mean to fill in. 
 
 Be advised that this normally would be a pretty bad way to fill in the values when approximately 70% is missing/null, however since there is only one feature with null values and it will be interesting to look at the relationship of how 'HDI for year' affects the results.  
 
+Now before we make other changes let's first make sure all the columns are recording the data correctly.
 
 ```python
-# Now before we make other changes let's first make sure all the columns are recording the data
-# correctly.
+
 df.info()
 ```
 
@@ -303,9 +310,9 @@ df.info()
     memory usage: 2.5+ MB
 
 
+Rename the columns with '($)' in them for better interpretation:
 
 ```python
-# Rename the columns with '($)' in them for better interpretation:
 
 df.rename(columns={' gdp_for_year ($) ': 'gdp_for_year', 
                   'gdp_per_capita ($)': 'gdp_per_capita'}, inplace=True)
@@ -428,7 +435,7 @@ df.head()
 </div>
 
 
-
+Question 1: If suicides are going up year over year:
 
 ```python
 num_s = df['suicides_no'].groupby(df.year).sum()
@@ -470,10 +477,10 @@ print(num_s)
     2016     15603
     Name: suicides_no, dtype: int64
 
-
+Suicides over time (visualized)
 
 ```python
-# Suicides over time (visualized)
+
 num_s = df['suicides_no'].groupby(df.year).sum()
 num_s.plot()
 plt.xlabel('year')
@@ -490,10 +497,9 @@ plt.ylabel('suicides_no')
 
 ![second pic]({{ site.baseurl }}/images/image14.png)
 
-
+Question 2 & 3: The genders most likely to commit suicide and the Age Cohort
 
 ```python
-# Now let's look at the gender breakdown: 
 df2 = df.copy()
 df2['year'] = pd.to_datetime(df['year'], format = '%Y')
 data = df2.groupby(['year', 'sex']).agg('mean').reset_index()
@@ -2337,6 +2343,7 @@ df.info()
     memory usage: 1.6 MB
 
 
+Question 4: If richer countries commit suicide at lower rates:
 
 ```python
 f, ax = plt.subplots(1,1, figsize=(8,6))
