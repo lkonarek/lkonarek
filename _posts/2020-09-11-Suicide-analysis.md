@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Suicide Rates since 1985 
+title: Analysis of Suicide Rates since 1985 
 ---
 
 Thursday September 10th marked World Suicide Prevention Day, a day where awareness is brought to one of the most prevalent and preventable causes of death: suicide. Our society has a strange relationship with suicide. We all know that it is a problem, however we rarely talk about it or acknowledge it as if that may give people ideas. I believe by investigating more of what causes suicides and why people ultimately feel the need to take their own life we will prevent these tragedies far more effectively. Although this analysis will not even begin to answer why people commit suicide I aim to identify: 
@@ -9,6 +9,7 @@ Thursday September 10th marked World Suicide Prevention Day, a day where awarene
 - The age ranges that typically commit suicide at higher rates 
 - If richer countries commit suicide at lower rates
 
+### Introduction
 Before we answer any of the questions above, we must first import the necessary packages and our dataset:
 
 ```python
@@ -176,7 +177,7 @@ Therefore the main data that the dataset includes is:
 - The year 
 - The sex/gender 
 - Different age profiles 
-- The population. 
+- The population, 
 - And lastly, some of the numerical and financial figures of each country. 
 
 From looking at these table names we can see for one that the column: 'country-year' is redundant as that information is already included in the two seperate columns of country and year. 
@@ -434,6 +435,7 @@ df.head()
 </table>
 </div>
 
+### Analysis
 
 Question 1: If suicides are going up year over year:
 
@@ -497,1118 +499,6 @@ plt.ylabel('suicides_no')
 
 ![second pic]({{ site.baseurl }}/images/image14.png)
 
-Question 2 & 3: The genders most likely to commit suicide and the Age Cohort
-
-```python
-df2 = df.copy()
-df2['year'] = pd.to_datetime(df['year'], format = '%Y')
-data = df2.groupby(['year', 'sex']).agg('mean').reset_index()
-sns.lineplot(x = 'year', y = 'suicides/100k pop', hue = 'sex', data = df2)
-plt.xlim('1985', '2015')
-plt.title('Evolution of the mean suicides number per 100k population (1985 - 2015)');
-```
-
-
-![second pic]({{ site.baseurl }}/images/image15.png)
-
-
-The above diagram shows a stark comparison between suicide rates consistently between men and women over roughly the past 30 years. Let's now look at how adding in the age groups changes the results: 
-
-
-```python
-# This code groups by year, sex, and age group and then takes the aggregates the mean of each: 
-df2 = df2.groupby(['year', 'sex', 'age']).agg('mean').reset_index()
-
-# Then instantiate the SNS plot:
-sns.relplot(x = 'year', y='suicides/100k pop', 
-            hue = 'sex', col='age', data = df2, col_wrap = 3, facet_kws=dict(sharey=False), kind='line')
-
-plt.xlim("1985", "2015")
-plt.subplots_adjust(top=0.9)
-plt.suptitle("Evolution of suicide by sex and age category (1985 - 2015)", size=18)
-```
-
-
-
-
-    Text(0.5, 0.98, 'Evolution of suicide by sex and age category (1985 - 2015)')
-
-
-
-
-![second pic]({{ site.baseurl }}/images/image15.png)
-
-
-
-```python
-## Number of suicides in 1985
-year_1985 = df[(df['year'] == 1985)]
-year_1985 = year_1985.groupby('country')[['suicides_no']].sum().reset_index()
-
-## Sorting values in ascending order
-year_1985 = year_1985.sort_values(by='suicides_no', ascending=False)
-
-## Styling output dataframe
-year_1985.style.background_gradient(cmap='Purples', subset=['suicides_no'])
-```
-
-
-
-
-<style  type="text/css" >
-    #T_2d11a772_f43f_11ea_a187_186590dc81a7row0_col1 {
-            background-color:  #3f007d;
-            color:  #f1f1f1;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row1_col1 {
-            background-color:  #63439c;
-            color:  #f1f1f1;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row2_col1 {
-            background-color:  #b0afd4;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row3_col1 {
-            background-color:  #e4e3f0;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row4_col1 {
-            background-color:  #e7e6f1;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row5_col1 {
-            background-color:  #e9e8f2;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row6_col1 {
-            background-color:  #ecebf4;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row7_col1 {
-            background-color:  #efedf5;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row8_col1 {
-            background-color:  #f1eff6;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row9_col1 {
-            background-color:  #f2f0f7;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row10_col1 {
-            background-color:  #f3f2f8;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row11_col1 {
-            background-color:  #f4f3f8;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row12_col1 {
-            background-color:  #f5f3f8;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row13_col1 {
-            background-color:  #f5f4f9;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row14_col1 {
-            background-color:  #f5f4f9;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row15_col1 {
-            background-color:  #f6f5f9;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row16_col1 {
-            background-color:  #f7f5fa;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row17_col1 {
-            background-color:  #f7f6fa;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row18_col1 {
-            background-color:  #f9f7fb;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row19_col1 {
-            background-color:  #f9f7fb;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row20_col1 {
-            background-color:  #faf9fc;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row21_col1 {
-            background-color:  #fbfafc;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row22_col1 {
-            background-color:  #fbfafc;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row23_col1 {
-            background-color:  #fbfafc;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row24_col1 {
-            background-color:  #fbfafc;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row25_col1 {
-            background-color:  #fbfafc;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row26_col1 {
-            background-color:  #fbfafc;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row27_col1 {
-            background-color:  #fbfafc;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row28_col1 {
-            background-color:  #fbfafc;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row29_col1 {
-            background-color:  #fcfbfd;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row30_col1 {
-            background-color:  #fcfbfd;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row31_col1 {
-            background-color:  #fcfbfd;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row32_col1 {
-            background-color:  #fcfbfd;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row33_col1 {
-            background-color:  #fcfbfd;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row34_col1 {
-            background-color:  #fcfbfd;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row35_col1 {
-            background-color:  #fcfbfd;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row36_col1 {
-            background-color:  #fcfbfd;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row37_col1 {
-            background-color:  #fcfbfd;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row38_col1 {
-            background-color:  #fcfbfd;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row39_col1 {
-            background-color:  #fcfbfd;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row40_col1 {
-            background-color:  #fcfbfd;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row41_col1 {
-            background-color:  #fcfbfd;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row42_col1 {
-            background-color:  #fcfbfd;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row43_col1 {
-            background-color:  #fcfbfd;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row44_col1 {
-            background-color:  #fcfbfd;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row45_col1 {
-            background-color:  #fcfbfd;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row46_col1 {
-            background-color:  #fcfbfd;
-            color:  #000000;
-        }    #T_2d11a772_f43f_11ea_a187_186590dc81a7row47_col1 {
-            background-color:  #fcfbfd;
-            color:  #000000;
-        }</style><table id="T_2d11a772_f43f_11ea_a187_186590dc81a7" ><thead>    <tr>        <th class="blank level0" ></th>        <th class="col_heading level0 col0" >country</th>        <th class="col_heading level0 col1" >suicides_no</th>    </tr></thead><tbody>
-                <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row0" class="row_heading level0 row0" >46</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row0_col0" class="data row0 col0" >United States</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row0_col1" class="data row0 col1" >29446</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row1" class="row_heading level0 row1" >24</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row1_col0" class="data row1 col0" >Japan</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row1_col1" class="data row1 col1" >23257</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row2" class="row_heading level0 row2" >16</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row2_col0" class="data row2 col0" >France</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row2_col1" class="data row2 col1" >12501</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row3" class="row_heading level0 row3" >41</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row3_col0" class="data row3 col0" >Sri Lanka</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row3_col1" class="data row3 col1" >5668</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row4" class="row_heading level0 row4" >45</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row4_col0" class="data row4 col0" >United Kingdom</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row4_col1" class="data row4 col1" >5105</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row5" class="row_heading level0 row5" >22</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row5_col0" class="data row5 col0" >Italy</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row5_col1" class="data row5 col1" >4759</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row6" class="row_heading level0 row6" >8</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row6_col0" class="data row6 col0" >Brazil</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row6_col1" class="data row6 col1" >4228</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row7" class="row_heading level0 row7" >36</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row7_col0" class="data row7 col0" >Republic of Korea</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row7_col1" class="data row7 col1" >3689</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row8" class="row_heading level0 row8" >10</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row8_col0" class="data row8 col0" >Canada</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row8_col1" class="data row8 col1" >3258</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row9" class="row_heading level0 row9" >43</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row9_col0" class="data row9 col0" >Thailand</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row9_col1" class="data row9 col1" >2982</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row10" class="row_heading level0 row10" >40</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row10_col0" class="data row10 col0" >Spain</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row10_col1" class="data row10 col1" >2514</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row11" class="row_heading level0 row11" >7</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row11_col0" class="data row11 col0" >Belgium</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row11_col1" class="data row11 col1" >2281</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row12" class="row_heading level0 row12" >3</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row12_col0" class="data row12 col0" >Austria</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row12_col1" class="data row12 col1" >2091</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row13" class="row_heading level0 row13" >1</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row13_col0" class="data row13 col0" >Argentina</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row13_col1" class="data row13 col1" >1988</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row14" class="row_heading level0 row14" >2</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row14_col0" class="data row14 col0" >Australia</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row14_col1" class="data row14 col1" >1861</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row15" class="row_heading level0 row15" >30</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row15_col0" class="data row15 col0" >Netherlands</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row15_col1" class="data row15 col1" >1638</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row16" class="row_heading level0 row16" >29</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row16_col0" class="data row16 col0" >Mexico</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row16_col1" class="data row16 col1" >1544</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row17" class="row_heading level0 row17" >9</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row17_col0" class="data row17 col0" >Bulgaria</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row17_col1" class="data row17 col1" >1456</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row18" class="row_heading level0 row18" >12</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row18_col0" class="data row18 col0" >Colombia</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row18_col1" class="data row18 col1" >1001</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row19" class="row_heading level0 row19" >34</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row19_col0" class="data row19 col0" >Portugal</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row19_col1" class="data row19 col1" >983</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row20" class="row_heading level0 row20" >11</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row20_col0" class="data row20 col0" >Chile</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row20_col1" class="data row20 col1" >683</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row21" class="row_heading level0 row21" >17</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row21_col0" class="data row21 col0" >Greece</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row21_col1" class="data row21 col1" >405</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row22" class="row_heading level0 row22" >15</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row22_col0" class="data row22 col0" >Ecuador</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row22_col1" class="data row22 col1" >393</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row23" class="row_heading level0 row23" >31</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row23_col0" class="data row23 col0" >New Zealand</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row23_col1" class="data row23 col1" >338</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row24" class="row_heading level0 row24" >39</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row24_col0" class="data row24 col0" >Singapore</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row24_col1" class="data row24 col1" >324</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row25" class="row_heading level0 row25" >47</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row25_col0" class="data row25 col0" >Uruguay</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row25_col1" class="data row25 col1" >287</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row26" class="row_heading level0 row26" >20</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row26_col0" class="data row26 col0" >Ireland</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row26_col1" class="data row26 col1" >276</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row27" class="row_heading level0 row27" >35</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row27_col0" class="data row27 col0" >Puerto Rico</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row27_col1" class="data row27 col1" >269</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row28" class="row_heading level0 row28" >21</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row28_col0" class="data row28 col0" >Israel</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row28_col1" class="data row28 col1" >234</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row29" class="row_heading level0 row29" >13</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row29_col0" class="data row29 col0" >Costa Rica</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row29_col1" class="data row29 col1" >128</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row30" class="row_heading level0 row30" >28</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row30_col0" class="data row30 col0" >Mauritius</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row30_col1" class="data row30 col1" >104</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row31" class="row_heading level0 row31" >42</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row31_col0" class="data row31 col0" >Suriname</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row31_col1" class="data row31 col1" >80</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row32" class="row_heading level0 row32" >33</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row32_col0" class="data row32 col0" >Paraguay</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row32_col1" class="data row32 col1" >63</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row33" class="row_heading level0 row33" >32</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row33_col0" class="data row33 col0" >Panama</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row33_col1" class="data row33 col1" >56</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row34" class="row_heading level0 row34" >26</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row34_col0" class="data row34 col0" >Luxembourg</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row34_col1" class="data row34 col1" >55</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row35" class="row_heading level0 row35" >19</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row35_col0" class="data row35 col0" >Iceland</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row35_col1" class="data row35 col1" >32</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row36" class="row_heading level0 row36" >44</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row36_col0" class="data row36 col0" >Trinidad and Tobago</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row36_col1" class="data row36 col1" >29</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row37" class="row_heading level0 row37" >25</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row37_col0" class="data row37 col0" >Kuwait</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row37_col1" class="data row37 col1" >17</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row38" class="row_heading level0 row38" >5</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row38_col0" class="data row38 col0" >Bahrain</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row38_col1" class="data row38 col1" >11</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row39" class="row_heading level0 row39" >23</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row39_col0" class="data row39 col0" >Jamaica</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row39_col1" class="data row39 col1" >8</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row40" class="row_heading level0 row40" >38</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row40_col0" class="data row40 col0" >Seychelles</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row40_col1" class="data row40 col1" >8</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row41" class="row_heading level0 row41" >6</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row41_col0" class="data row41 col0" >Barbados</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row41_col1" class="data row41 col1" >7</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row42" class="row_heading level0 row42" >37</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row42_col0" class="data row42 col0" >Saint Vincent and Grenadines</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row42_col1" class="data row42 col1" >2</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row43" class="row_heading level0 row43" >27</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row43_col0" class="data row43 col0" >Malta</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row43_col1" class="data row43 col1" >2</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row44" class="row_heading level0 row44" >18</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row44_col0" class="data row44 col0" >Grenada</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row44_col1" class="data row44 col1" >1</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row45" class="row_heading level0 row45" >4</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row45_col0" class="data row45 col0" >Bahamas</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row45_col1" class="data row45 col1" >1</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row46" class="row_heading level0 row46" >14</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row46_col0" class="data row46 col0" >Dominica</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row46_col1" class="data row46 col1" >0</td>
-            </tr>
-            <tr>
-                        <th id="T_2d11a772_f43f_11ea_a187_186590dc81a7level0_row47" class="row_heading level0 row47" >0</th>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row47_col0" class="data row47 col0" >Antigua and Barbuda</td>
-                        <td id="T_2d11a772_f43f_11ea_a187_186590dc81a7row47_col1" class="data row47 col1" >0</td>
-            </tr>
-    </tbody></table>
-
-
-
-
-```python
-df2015 = df[(df['year'] == 2015)]
-df2015['country'].value_counts()
-```
-
-
-
-
-    Netherlands           12
-    Norway                12
-    Denmark               12
-    Russian Federation    12
-    Kazakhstan            12
-                          ..
-    Lithuania             12
-    Qatar                 12
-    Panama                12
-    Poland                12
-    Switzerland           12
-    Name: country, Length: 62, dtype: int64
-
-
-
-
-```python
-df2015 = df2015.groupby('country')[['suicides_no']].sum().reset_index()
-df2015 = df2015.sort_values(by='suicides_no', ascending=False)
-```
-
-
-```python
-df2015
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>country</th>
-      <th>suicides_no</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>60</td>
-      <td>United States</td>
-      <td>44189</td>
-    </tr>
-    <tr>
-      <td>45</td>
-      <td>Russian Federation</td>
-      <td>25432</td>
-    </tr>
-    <tr>
-      <td>27</td>
-      <td>Japan</td>
-      <td>23092</td>
-    </tr>
-    <tr>
-      <td>43</td>
-      <td>Republic of Korea</td>
-      <td>13510</td>
-    </tr>
-    <tr>
-      <td>7</td>
-      <td>Brazil</td>
-      <td>11163</td>
-    </tr>
-    <tr>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <td>6</td>
-      <td>Belize</td>
-      <td>26</td>
-    </tr>
-    <tr>
-      <td>48</td>
-      <td>Seychelles</td>
-      <td>7</td>
-    </tr>
-    <tr>
-      <td>46</td>
-      <td>Saint Vincent and Grenadines</td>
-      <td>3</td>
-    </tr>
-    <tr>
-      <td>0</td>
-      <td>Antigua and Barbuda</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <td>21</td>
-      <td>Grenada</td>
-      <td>0</td>
-    </tr>
-  </tbody>
-</table>
-<p>62 rows × 2 columns</p>
-</div>
-
-
-
-
-```python
-## Number of suicides in 2015 (the last full year of statistics): 
-year_2015 = df[(df['year'] == 2015)]
-year_2015 = year_2015.groupby('country')[['suicides_no']].sum().reset_index()
-
-## Sorting values in ascending order
-year_2015 = year_2015.sort_values(by='suicides_no', ascending=False)
-
-## Styling output dataframe
-year_2015.style.background_gradient(cmap='Reds', subset=['suicides_no'])
-```
-
-
-
-
-<style  type="text/css" >
-    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row0_col1 {
-            background-color:  #67000d;
-            color:  #f1f1f1;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row1_col1 {
-            background-color:  #f44d38;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row2_col1 {
-            background-color:  #f96245;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row3_col1 {
-            background-color:  #fca98c;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row4_col1 {
-            background-color:  #fcbba1;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row5_col1 {
-            background-color:  #fcc2aa;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row6_col1 {
-            background-color:  #fdd3c1;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row7_col1 {
-            background-color:  #fedbcc;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row8_col1 {
-            background-color:  #fee1d3;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row9_col1 {
-            background-color:  #fee3d6;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row10_col1 {
-            background-color:  #fee5d9;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row11_col1 {
-            background-color:  #fee6da;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row12_col1 {
-            background-color:  #fee8dd;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row13_col1 {
-            background-color:  #feeae0;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row14_col1 {
-            background-color:  #feeae0;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row15_col1 {
-            background-color:  #feeae1;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row16_col1 {
-            background-color:  #ffece4;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row17_col1 {
-            background-color:  #ffede5;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row18_col1 {
-            background-color:  #ffeee7;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row19_col1 {
-            background-color:  #ffeee7;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row20_col1 {
-            background-color:  #ffeee7;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row21_col1 {
-            background-color:  #ffeee7;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row22_col1 {
-            background-color:  #fff0e8;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row23_col1 {
-            background-color:  #fff0e8;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row24_col1 {
-            background-color:  #fff0e8;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row25_col1 {
-            background-color:  #fff0e9;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row26_col1 {
-            background-color:  #fff1ea;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row27_col1 {
-            background-color:  #fff1ea;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row28_col1 {
-            background-color:  #fff1ea;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row29_col1 {
-            background-color:  #fff1ea;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row30_col1 {
-            background-color:  #fff2eb;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row31_col1 {
-            background-color:  #fff2ec;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row32_col1 {
-            background-color:  #fff2ec;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row33_col1 {
-            background-color:  #fff3ed;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row34_col1 {
-            background-color:  #fff3ed;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row35_col1 {
-            background-color:  #fff3ed;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row36_col1 {
-            background-color:  #fff3ed;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row37_col1 {
-            background-color:  #fff4ee;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row38_col1 {
-            background-color:  #fff4ee;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row39_col1 {
-            background-color:  #fff4ee;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row40_col1 {
-            background-color:  #fff4ee;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row41_col1 {
-            background-color:  #fff4ee;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row42_col1 {
-            background-color:  #fff4ef;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row43_col1 {
-            background-color:  #fff4ef;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row44_col1 {
-            background-color:  #fff4ef;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row45_col1 {
-            background-color:  #fff4ef;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row46_col1 {
-            background-color:  #fff4ef;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row47_col1 {
-            background-color:  #fff4ef;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row48_col1 {
-            background-color:  #fff5f0;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row49_col1 {
-            background-color:  #fff5f0;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row50_col1 {
-            background-color:  #fff5f0;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row51_col1 {
-            background-color:  #fff5f0;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row52_col1 {
-            background-color:  #fff5f0;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row53_col1 {
-            background-color:  #fff5f0;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row54_col1 {
-            background-color:  #fff5f0;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row55_col1 {
-            background-color:  #fff5f0;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row56_col1 {
-            background-color:  #fff5f0;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row57_col1 {
-            background-color:  #fff5f0;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row58_col1 {
-            background-color:  #fff5f0;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row59_col1 {
-            background-color:  #fff5f0;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row60_col1 {
-            background-color:  #fff5f0;
-            color:  #000000;
-        }    #T_2d2d5260_f43f_11ea_a187_186590dc81a7row61_col1 {
-            background-color:  #fff5f0;
-            color:  #000000;
-        }</style><table id="T_2d2d5260_f43f_11ea_a187_186590dc81a7" ><thead>    <tr>        <th class="blank level0" ></th>        <th class="col_heading level0 col0" >country</th>        <th class="col_heading level0 col1" >suicides_no</th>    </tr></thead><tbody>
-                <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row0" class="row_heading level0 row0" >60</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row0_col0" class="data row0 col0" >United States</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row0_col1" class="data row0 col1" >44189</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row1" class="row_heading level0 row1" >45</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row1_col0" class="data row1 col0" >Russian Federation</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row1_col1" class="data row1 col1" >25432</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row2" class="row_heading level0 row2" >27</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row2_col0" class="data row2 col0" >Japan</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row2_col1" class="data row2 col1" >23092</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row3" class="row_heading level0 row3" >43</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row3_col0" class="data row3 col0" >Republic of Korea</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row3_col1" class="data row3 col1" >13510</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row4" class="row_heading level0 row4" >7</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row4_col0" class="data row4 col0" >Brazil</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row4_col1" class="data row4 col1" >11163</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row5" class="row_heading level0 row5" >19</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row5_col0" class="data row5 col0" >Germany</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row5_col1" class="data row5 col1" >10088</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row6" class="row_heading level0 row6" >58</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row6_col0" class="data row6 col0" >Ukraine</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row6_col1" class="data row6 col1" >7574</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row7" class="row_heading level0 row7" >35</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row7_col0" class="data row7 col0" >Mexico</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row7_col1" class="data row7 col1" >6234</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row8" class="row_heading level0 row8" >40</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row8_col0" class="data row8 col0" >Poland</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row8_col1" class="data row8 col1" >5420</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row9" class="row_heading level0 row9" >59</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row9_col0" class="data row9 col0" >United Kingdom</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row9_col1" class="data row9 col1" >4910</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row10" class="row_heading level0 row10" >55</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row10_col0" class="data row10 col0" >Thailand</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row10_col1" class="data row10 col1" >4205</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row11" class="row_heading level0 row11" >26</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row11_col0" class="data row11 col0" >Italy</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row11_col1" class="data row11 col1" >3988</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row12" class="row_heading level0 row12" >52</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row12_col0" class="data row12 col0" >Spain</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row12_col1" class="data row12 col1" >3604</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row13" class="row_heading level0 row13" >1</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row13_col0" class="data row13 col0" >Argentina</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row13_col1" class="data row13 col1" >3073</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row14" class="row_heading level0 row14" >3</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row14_col0" class="data row14 col0" >Australia</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row14_col1" class="data row14 col1" >3027</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row15" class="row_heading level0 row15" >28</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row15_col0" class="data row15 col0" >Kazakhstan</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row15_col1" class="data row15 col1" >2872</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row16" class="row_heading level0 row16" >9</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row16_col0" class="data row16 col0" >Colombia</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row16_col1" class="data row16 col1" >2332</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row17" class="row_heading level0 row17" >44</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row17_col0" class="data row17 col0" >Romania</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row17_col1" class="data row17 col1" >2228</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row18" class="row_heading level0 row18" >36</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row18_col0" class="data row18 col0" >Netherlands</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row18_col1" class="data row18 col1" >1873</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row19" class="row_heading level0 row19" >23</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row19_col0" class="data row19 col0" >Hungary</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row19_col1" class="data row19 col1" >1868</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row20" class="row_heading level0 row20" >5</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row20_col0" class="data row20 col0" >Belgium</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row20_col1" class="data row20 col1" >1867</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row21" class="row_heading level0 row21" >8</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row21_col0" class="data row21 col0" >Chile</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row21_col1" class="data row21 col1" >1838</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row22" class="row_heading level0 row22" >56</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row22_col0" class="data row22 col0" >Turkey</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row22_col1" class="data row22 col1" >1532</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row23" class="row_heading level0 row23" >11</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row23_col0" class="data row23 col0" >Cuba</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row23_col1" class="data row23 col1" >1511</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row24" class="row_heading level0 row24" >13</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row24_col0" class="data row24 col0" >Czech Republic</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row24_col1" class="data row24 col1" >1387</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row25" class="row_heading level0 row25" >4</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row25_col0" class="data row25 col0" >Austria</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row25_col1" class="data row25 col1" >1251</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row26" class="row_heading level0 row26" >53</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row26_col0" class="data row26 col0" >Sweden</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row26_col1" class="data row26 col1" >1182</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row27" class="row_heading level0 row27" >54</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row27_col0" class="data row27 col0" >Switzerland</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row27_col1" class="data row27 col1" >1073</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row28" class="row_heading level0 row28" >15</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row28_col0" class="data row28 col0" >Ecuador</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row28_col1" class="data row28 col1" >1073</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row29" class="row_heading level0 row29" >47</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row29_col0" class="data row29 col0" >Serbia</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row29_col1" class="data row29 col1" >1062</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row30" class="row_heading level0 row30" >31</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row30_col0" class="data row30 col0" >Lithuania</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row30_col1" class="data row30 col1" >896</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row31" class="row_heading level0 row31" >10</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row31_col0" class="data row31 col0" >Croatia</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row31_col1" class="data row31 col1" >739</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row32" class="row_heading level0 row32" >17</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row32_col0" class="data row32 col0" >Finland</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row32_col1" class="data row32 col1" >731</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row33" class="row_heading level0 row33" >61</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row33_col0" class="data row33 col0" >Uruguay</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row33_col1" class="data row33 col1" >630</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row34" class="row_heading level0 row34" >38</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row34_col0" class="data row34 col0" >Norway</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row34_col1" class="data row34 col1" >590</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row35" class="row_heading level0 row35" >14</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row35_col0" class="data row35 col0" >Denmark</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row35_col1" class="data row35 col1" >564</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row36" class="row_heading level0 row36" >20</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row36_col0" class="data row36 col0" >Greece</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row36_col1" class="data row36 col1" >529</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row37" class="row_heading level0 row37" >22</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row37_col0" class="data row37 col0" >Guatemala</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row37_col1" class="data row37 col1" >494</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row38" class="row_heading level0 row38" >51</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row38_col0" class="data row38 col0" >South Africa</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row38_col1" class="data row38 col1" >482</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row39" class="row_heading level0 row39" >50</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row39_col0" class="data row39 col0" >Slovenia</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row39_col1" class="data row39 col1" >422</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row40" class="row_heading level0 row40" >29</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row40_col0" class="data row40 col0" >Kyrgyzstan</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row40_col1" class="data row40 col1" >417</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row41" class="row_heading level0 row41" >30</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row41_col0" class="data row41 col0" >Latvia</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row41_col1" class="data row41 col1" >387</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row42" class="row_heading level0 row42" >25</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row42_col0" class="data row42 col0" >Israel</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row42_col1" class="data row42 col1" >342</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row43" class="row_heading level0 row43" >49</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row43_col0" class="data row43 col0" >Singapore</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row43_col1" class="data row43 col1" >329</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row44" class="row_heading level0 row44" >37</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row44_col0" class="data row44 col0" >Nicaragua</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row44_col1" class="data row44 col1" >315</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row45" class="row_heading level0 row45" >41</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row45_col0" class="data row45 col0" >Puerto Rico</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row45_col1" class="data row45 col1" >226</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row46" class="row_heading level0 row46" >16</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row46_col0" class="data row46 col0" >Estonia</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row46_col1" class="data row46 col1" >195</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row47" class="row_heading level0 row47" >18</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row47_col0" class="data row47 col0" >Georgia</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row47_col1" class="data row47 col1" >192</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row48" class="row_heading level0 row48" >57</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row48_col0" class="data row48 col0" >Turkmenistan</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row48_col1" class="data row48 col1" >133</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row49" class="row_heading level0 row49" >39</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row49_col0" class="data row49 col0" >Panama</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row49_col1" class="data row49 col1" >110</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row50" class="row_heading level0 row50" >34</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row50_col0" class="data row50 col0" >Mauritius</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row50_col1" class="data row50 col1" >104</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row51" class="row_heading level0 row51" >2</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row51_col0" class="data row51 col0" >Armenia</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row51_col1" class="data row51 col1" >74</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row52" class="row_heading level0 row52" >42</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row52_col0" class="data row52 col0" >Qatar</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row52_col1" class="data row52 col1" >66</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row53" class="row_heading level0 row53" >32</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row53_col0" class="data row53 col0" >Luxembourg</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row53_col1" class="data row53 col1" >64</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row54" class="row_heading level0 row54" >12</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row54_col0" class="data row54 col0" >Cyprus</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row54_col1" class="data row54 col1" >40</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row55" class="row_heading level0 row55" >24</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row55_col0" class="data row55 col0" >Iceland</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row55_col1" class="data row55 col1" >40</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row56" class="row_heading level0 row56" >33</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row56_col0" class="data row56 col0" >Malta</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row56_col1" class="data row56 col1" >34</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row57" class="row_heading level0 row57" >6</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row57_col0" class="data row57 col0" >Belize</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row57_col1" class="data row57 col1" >26</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row58" class="row_heading level0 row58" >48</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row58_col0" class="data row58 col0" >Seychelles</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row58_col1" class="data row58 col1" >7</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row59" class="row_heading level0 row59" >46</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row59_col0" class="data row59 col0" >Saint Vincent and Grenadines</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row59_col1" class="data row59 col1" >3</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row60" class="row_heading level0 row60" >0</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row60_col0" class="data row60 col0" >Antigua and Barbuda</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row60_col1" class="data row60 col1" >1</td>
-            </tr>
-            <tr>
-                        <th id="T_2d2d5260_f43f_11ea_a187_186590dc81a7level0_row61" class="row_heading level0 row61" >21</th>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row61_col0" class="data row61 col0" >Grenada</td>
-                        <td id="T_2d2d5260_f43f_11ea_a187_186590dc81a7row61_col1" class="data row61 col1" >0</td>
-            </tr>
-    </tbody></table>
-
-
-
-
-```python
-# Box/barplot: 
-f,ax = plt.subplots(1,1, figsize=(13,6))
-ax = sns.barplot(x=df['generation'], y = 'suicides_no', hue='sex', data=df, palette='dark')
-```
-
-
-![second pic]({{ site.baseurl }}/images/image17.png)
-
-
-
-```python
-## Same but with age and sex: 
-f,ax = plt.subplots(1,1,figsize=(13,6))
-ax = sns.barplot(x=df['age'], y = 'suicides_no', hue='sex', data=df, palette = 'coolwarm')
-```
-
-
-![second pic]({{ site.baseurl }}/images/image18.png)
-
-
-
 ```python
 f,ax = plt.subplots(1,1, figsize=(17,6))
 ax = sns.barplot(x = df['year'], y = 'suicides_no', data=df, palette='Spectral')
@@ -1616,20 +506,6 @@ ax = sns.barplot(x = df['year'], y = 'suicides_no', data=df, palette='Spectral')
 
 
 ![second pic]({{ site.baseurl }}/images/image19.png)
-
-
-
-```python
-# Let's investigate the correlation of factors using a heatmap:
-f,ax = plt.subplots(1,1,figsize=(10,10))
-ax = sns.heatmap(df.corr(),annot=True, cmap='coolwarm')
-```
-
-
-![second pic]({{ site.baseurl }}/images/image20.png)
-
-
-Nothing really jumping off the page here to be honest. 
 
 
 ```python
@@ -1902,6 +778,66 @@ year_suicides.sort_values(by='suicides_no', ascending=False).style.background_gr
             </tr>
     </tbody></table>
 
+
+As we can see, total suicides went up in the late 80s and early 90s nominally, however in real terms, total suicides have generally been goiind down given that total suicides have stayed relatively stagnant from 1995-2010, despite worldwide population going up significantly over this time. 
+
+Question 2 & 3: The genders most likely to commit suicide and the Age Cohort
+
+```python
+df2 = df.copy()
+df2['year'] = pd.to_datetime(df['year'], format = '%Y')
+data = df2.groupby(['year', 'sex']).agg('mean').reset_index()
+sns.lineplot(x = 'year', y = 'suicides/100k pop', hue = 'sex', data = df2)
+plt.xlim('1985', '2015')
+plt.title('Evolution of the mean suicides number per 100k population (1985 - 2015)');
+```
+
+
+![second pic]({{ site.baseurl }}/images/image15.png)
+
+
+The above diagram shows a stark comparison between suicide rates consistently between men and women over roughly the past 30 years. Let's now look at how adding in the age groups changes the results: 
+
+
+```python
+# This code groups by year, sex, and age group and then takes the aggregates the mean of each: 
+df2 = df2.groupby(['year', 'sex', 'age']).agg('mean').reset_index()
+
+# Then instantiate the SNS plot:
+sns.relplot(x = 'year', y='suicides/100k pop', 
+            hue = 'sex', col='age', data = df2, col_wrap = 3, facet_kws=dict(sharey=False), kind='line')
+
+plt.xlim("1985", "2015")
+plt.subplots_adjust(top=0.9)
+plt.suptitle("Evolution of suicide by sex and age category (1985 - 2015)", size=18)
+```
+
+
+
+
+![second pic]({{ site.baseurl }}/images/image16.png)
+
+
+
+```python
+# Box/barplot: 
+f,ax = plt.subplots(1,1, figsize=(13,6))
+ax = sns.barplot(x=df['generation'], y = 'suicides_no', hue='sex', data=df, palette='dark')
+```
+
+
+![second pic]({{ site.baseurl }}/images/image17.png)
+
+
+
+```python
+## Same but with age and sex: 
+f,ax = plt.subplots(1,1,figsize=(13,6))
+ax = sns.barplot(x=df['age'], y = 'suicides_no', hue='sex', data=df, palette = 'coolwarm')
+```
+
+
+![second pic]({{ site.baseurl }}/images/image18.png)
 
 
 
@@ -2346,6 +1282,18 @@ df.info()
 Question 4: If richer countries commit suicide at lower rates:
 
 ```python
+# Let's investigate the correlation of factors using a heatmap:
+f,ax = plt.subplots(1,1,figsize=(10,10))
+ax = sns.heatmap(df.corr(),annot=True, cmap='coolwarm')
+```
+
+
+![second pic]({{ site.baseurl }}/images/image20.png)
+
+
+Nothing really jumping off the page here to be honest. 
+
+```python
 f, ax = plt.subplots(1,1, figsize=(8,6))
 ax = sns.scatterplot(x="gdp_for_year", y='suicides_no', data=df, color='red')
 ```
@@ -2433,7 +1381,7 @@ df.dtypes
     dtype: object
 
 
-
+Let's do some unsupervised ML to determine if we can establish two statistically significant clusters of countries: those that commit suicide at higher rates, vs those that do not: 
 
 ```python
 from sklearn.datasets.samples_generator import make_blobs
@@ -2463,11 +1411,22 @@ ax.scatter(x[:,0], x[:,1], c=y_kmeans, cmap='cool')
 
 ![second pic]({{ site.baseurl }}/images/image24.png)
 
+### Conclusion and Future Considerations
 
-Ultimately through our analysis we identified a number of interesting insights. Firstly, we can identify that GDP is not a good predictor of suicides. Although the countries with the highest number of suicides have the lowest GDP,  suicide rates don't go up or down as you get to the richer countries on the list. In addition many of the countries that have GDP_for_year below 0.50 have lower suicide rates then countries with much higher GDP. Therefore we can say there is limited evidence of a statistically significant relationship between GDP and suicide rates.
+Ultimately through our analysis we identified a number of interesting insights. Firstly, as we discussed in Question 1, although nominal suicides stayed relatively stagnant from ~1995-2015, the proportion of deaths by suicide dropped over this time, due to increasing worldwide population over the time timeframe. Interestingly we also identified that although suicide is very commonly brought up as a very important issue affecting children and young people (as it should be), that suicides and suicidal thoughts clearly affect people of virtually every age range, and are highest in total suicides in the age range of 35-54 years old for both men and women. (More analysis would need to be completed to determine definitively if this is the most common age range of suicide deaths or if this is just the most populated demographic from the dataset, however it is still interesting). In addition more individuals in the dataset committed suicide between the ages of 55-74 then 25-34, showing again how common suicide is for people in an older demographic.  
 
-A similar relationship emerged with HDI and suicides, and if anything, as HDI increases suicide numbers also increase (although this must be taken with a significant grain of salt given that we had to fill in the null values for HDI). 
+Through the analysis, we also found that men commit suicide 3.3x more often then women across the whole data set, but that is even more pronounced by some of the largest countries in the dataset (Brazil/Russia, for example) 
 
-We also found that men commit suicide 3.3x more often then women across the whole data set, but that is even more pronounced by some of the largest countries in the dataset (Brazil/Russia, for example) 
+We also successfully identified that GDP is not a good predictor of suicides. Although the countries with the highest number of suicides have the lowest GDP,  suicide rates don't go up or down as you get to the richer countries on the list. In addition many of the countries that have GDP_for_year below 0.50 have lower suicide rates then countries with much higher GDP. Therefore we can say there is limited evidence of a statistically significant relationship between GDP and suicide rates. A similar relationship emerged with HDI and suicides, and if anything, as HDI increases suicide numbers also increase (although this must be taken with a significant grain of salt given that we had to fill in the null values for HDI). 
 
 Lastly, we managed to identify that there were two statistically significant clusters of countries (those that commit suicide at higher rates and those that don't) amongst the data set. More analysis would have to be done to identify what ultimately seperates these groups from eachother, however it is clear that it is not necessarily HDI or GDP. Therefore more information would need to be provided regarding demographics, cultural, and sociological factors (race, ethnicity, income inequality, religion, etc.) as well as geographical. 
+
+Future Considerations:
+- Although this is a topic that has gained a lot of interest in recent years, there is still a lot to determine what sort of geopolitical factors play a role, and by how much. In the future it would be interesting to incorporate alcohol and drug use statistics, the level of religion/secularism in each country, the general attitudes and consumption statistics in each country, etc.
+- I believe that through increased research in understanding what makes suicide seemingly an attractive option for people will allow us to better prevent these deaths, as opposed to acting like suicide doesn't exist. We do nothing to fight suicide by burying our heads in the sand and hoping the problem goes away. Grassroot organizations that aim to assist people with mental illness problems are vital, but we also need to better understand what perpetuates and exacerbates those problems. 
+
+Throughout this analysis, I completed a great deal more Supervised and Unsupervised ML which largely resulted in results with minimal conclusions, feel free to email me if you're interested in the other analysis I completed. In addition please feel free to read the following links for more information: 
+- https://pubmed.ncbi.nlm.nih.gov/30933702/
+- https://pubmed.ncbi.nlm.nih.gov/31504808/
+
+Thank you! 
